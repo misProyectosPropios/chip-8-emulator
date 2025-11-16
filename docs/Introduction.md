@@ -8,3 +8,4 @@ It will be developed using TDD.
 
 All architecture and design decisions will be explained in the docs if they are not obvious.
 
+For the testing, I will use CUnit documentation because of its simplicity to write tests.

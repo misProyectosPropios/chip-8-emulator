@@ -14,7 +14,8 @@
             "extensions": [
                 "ms-vscode.cpptools",
                 "kunalg.library-documentation-cpp",
-                "danielpinto8zz6.c-cpp-compile-run"
+                "danielpinto8zz6.c-cpp-compile-run",
+                "ms-vscode.cpptools-extension-pack"
             ]
         }
     }

@@ -1,0 +1,21 @@
+{
+    "name": "cpp-dev-container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "remote.downloadExtensionsLocally": true,
+                "telemetry.enableTelemetry": false,
+                "extensions.ignoreRecommendations": false,
+                "workbench.remoteIndicator.showExtensionRecommendations": false
+            },
+            "extensions": [
+                "ms-vscode.cpptools",
+                "kunalg.library-documentation-cpp",
+                "danielpinto8zz6.c-cpp-compile-run"
+            ]
+        }
+    }
+}

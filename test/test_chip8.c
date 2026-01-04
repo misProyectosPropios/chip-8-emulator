@@ -110,6 +110,18 @@ void tests10_execute8XY7SubstractVYMinusVX(void) {
 
 }
 
+void tests11_execute8XYEShiftLeftInstruction(void) {
+    cpu_registers_t cpu_registers;
+    executeInstruction(0x6102, &cpu_registers); // V1 = 0x0x02
+    executeInstruction(0x60Ff, &cpu_registers); // V0 = 0x0xFF
+    // Instruction: 801E (VX = V0, VY = V1)
+    executeInstruction(0x801E, &cpu_registers);
+
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x02, "Instruction 8XYE doesnt modify the VY value");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0xF] == 0x00, "Instruction 8XY6 doesnt store the least significant bit prior to the shift in VF");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x04, "Instruction 8XY6 doesnt shift the value storing in VY");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -122,5 +134,6 @@ int main(void) {
     RUN_TEST(tests8_execute8XY5SubstractsTheValueAndAddValuesCorrectly);
     RUN_TEST(tests9_execute8XY6ShiftRigthTheValue);
     RUN_TEST(tests10_execute8XY7SubstractVYMinusVX);
+    RUN_TEST(tests11_execute8XYEShiftLeftInstruction);
     return UNITY_END();
 }

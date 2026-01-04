@@ -5,3 +5,6 @@ typedef struct cpu_registers {
     uint16_t address_register; //in instruction set its called I
 } cpu_registers_t;
 
+// Functions
+
+void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers);

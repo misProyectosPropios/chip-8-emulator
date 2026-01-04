@@ -16,7 +16,8 @@
                 "kunalg.library-documentation-cpp",
                 "danielpinto8zz6.c-cpp-compile-run",
                 "ms-vscode.cpptools-extension-pack",
-                "ms-vscode.cmake-tools"
+                "ms-vscode.cmake-tools",
+                "ms-vscode.makefile-tools"
             ]
         }
     }

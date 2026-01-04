@@ -23,7 +23,7 @@ testing:
 git_code:
 	git add $(SRC) $(HEADER_SRC) 
 
-git_test
+git_test:
 	git add $(TEST)
 
 

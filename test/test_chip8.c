@@ -97,11 +97,18 @@ void tests9_execute8XY6ShiftRigthTheValue(void) {
     TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x01, "Instruction 8XY6 doesnt shift the value storing in VY");
     TEST_ASSERT_MESSAGE(cpu_registers.data_register[0xF] == 0x01, "Instruction 8XY6 doesnt store the least significant bit prior to the shift in VF");
     TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x03, "Instruction 8XY6 doesnt shift the value storing in VY");
-    
-
-
 }
 
+void tests10_execute8XY7SubstractVYMinusVX(void) {
+    cpu_registers_t cpu_registers;
+    executeInstruction(0x6001, &cpu_registers); // V0 = 1
+    executeInstruction(0x6104, &cpu_registers); // V1 = 4
+    executeInstruction(0x8017, &cpu_registers); // V0 = V1 - V0
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x04, "Instruction 8XY7 modify VY while it shouldn't modify it");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x03, "Instruction 8XY7 doesn't store the substract of both registers");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0xF] == 0x00, "Instruction 8XY7 doesnt store the if there was a borrow");
+
+}
 
 int main(void) {
     UNITY_BEGIN();
@@ -114,5 +121,6 @@ int main(void) {
     RUN_TEST(tests7_execute8XY4AddsTheValue);
     RUN_TEST(tests8_execute8XY5SubstractsTheValueAndAddValuesCorrectly);
     RUN_TEST(tests9_execute8XY6ShiftRigthTheValue);
+    RUN_TEST(tests10_execute8XY7SubstractVYMinusVX);
     return UNITY_END();
 }

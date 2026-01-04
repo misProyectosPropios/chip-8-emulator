@@ -35,7 +35,7 @@ void tests4_execute8XY1StoresInXValueOfORBetweenXY(void) {
     executeInstruction(0x60F0, &cpu_registers);
     executeInstruction(0x610F, &cpu_registers);
     executeInstruction(0x8101, &cpu_registers);
-    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0xFF , "Instruction 8XY1 doens't sotre in X the value of the operation X | Y");
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0xFF , "Instruction 8XY1 doens't store in X the value of the operation X | Y");
 }
 
 void tests5_execute8XY2StoresInXValueOfANDBetweenXY(void) {
@@ -43,7 +43,7 @@ void tests5_execute8XY2StoresInXValueOfANDBetweenXY(void) {
     executeInstruction(0x60F0, &cpu_registers);
     executeInstruction(0x610F, &cpu_registers);
     executeInstruction(0x8102, &cpu_registers);
-    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x00 , "Instruction 8XY2 doens't sotre in X the value of the operation X & Y");
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x00 , "Instruction 8XY2 doens't store in X the value of the operation X & Y");
 }
 
 void tests6_execute8XY3StoresInXValueOfXORBetweenXY(void) {
@@ -51,7 +51,18 @@ void tests6_execute8XY3StoresInXValueOfXORBetweenXY(void) {
     executeInstruction(0x60FC, &cpu_registers);
     executeInstruction(0x61F3, &cpu_registers);
     executeInstruction(0x8103, &cpu_registers);
-    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x0F , "Instruction 8XY3 doens't sotre in X the value of the operation X ^ Y");
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x0F , "Instruction 8XY3 doens't store in X the value of the operation X ^ Y");
+}
+
+void tests7_execute8XY4AddsTheValue(void) {
+    cpu_registers_t cpu_registers;
+    executeInstruction(0x6001, &cpu_registers);
+    executeInstruction(0x6102, &cpu_registers);
+    executeInstruction(0x6FFF, &cpu_registers);
+    executeInstruction(0x8104, &cpu_registers);
+    
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x03 , "Instruction 8XY4 doens't store in X the value of the operation X ^ Y");
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[15] == 0x00, "Instruction 8XY4 doens't store in VF whether there was carry or not");
 }
 
 int main(void) {
@@ -62,5 +73,6 @@ int main(void) {
     RUN_TEST(tests4_execute8XY1StoresInXValueOfORBetweenXY);
     RUN_TEST(tests5_execute8XY2StoresInXValueOfANDBetweenXY);
     RUN_TEST(tests6_execute8XY3StoresInXValueOfXORBetweenXY);
+    RUN_TEST(tests7_execute8XY4AddsTheValue);
     return UNITY_END();
 }

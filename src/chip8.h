@@ -18,3 +18,6 @@ void addValueToRegister(uint8_t cpu_register, uint8_t valueToAdd, cpu_registers_
 void moveValueFromXToY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
 void storeInXValueOfOrBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+
+void storeInXValueOfANDBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+

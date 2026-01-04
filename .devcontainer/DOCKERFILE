@@ -1,9 +1,13 @@
 FROM debian:stable-slim
 
 RUN apt-get update \
-    && apt-get install -y git g++ gcc make gdb valgrind build-essential \
-    && apt-get clean \
+    && apt-get install -y git g++ gcc make gdb valgrind build-essential wget python3-pygments \
+    && apt-get clean
 
 WORKDIR /root
+
+# Download and place the .gdbinit file in the root user's home directory
+# Adjust the path if you use a different non-root user (e.g., /home/vscode/.gdbinit)
+RUN wget -O /root/.gdbinit https://raw.githubusercontent.com/cyrus-and/gdb-dashboard/master/.gdbinit
 
 CMD ["sleep infinity"]

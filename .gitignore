@@ -56,3 +56,5 @@ dkms.conf
 
 #Executable named main
 main
+chip8
+chip8_tests

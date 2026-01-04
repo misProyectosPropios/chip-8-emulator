@@ -15,5 +15,8 @@ tests:
 	$(CC) $(CFLAGS) -Itest/unity $(SANITIZE) $(SRC) $(TEST_SRC) -o $(TEST_TARGET)
 	./$(TEST_TARGET)
 
+testing:
+	gdb ./$(TEST_TARGET)
+
 clean:
 	rm -f $(TARGET) $(TEST_TARGET)

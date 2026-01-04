@@ -12,7 +12,7 @@ all:
 	$(CC) $(CFLAGS) $(SRC) src/main.c -o $(TARGET)
 
 tests:
-	$(CC) $(CFLAGS) $(SANITIZE) $(SRC) $(TEST_SRC) -o $(TEST_TARGET)
+	$(CC) $(CFLAGS) -Itest/unity $(SANITIZE) $(SRC) $(TEST_SRC) -o $(TEST_TARGET)
 	./$(TEST_TARGET)
 
 clean:

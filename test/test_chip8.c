@@ -58,11 +58,20 @@ void tests7_execute8XY4AddsTheValue(void) {
     cpu_registers_t cpu_registers;
     executeInstruction(0x6001, &cpu_registers);
     executeInstruction(0x6102, &cpu_registers);
+
+    executeInstruction(0x63FF, &cpu_registers);
+    executeInstruction(0x64FF, &cpu_registers);
+    
     executeInstruction(0x6FFF, &cpu_registers);
     executeInstruction(0x8104, &cpu_registers);
     
     TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x03 , "Instruction 8XY4 doens't store in X the value of the operation X ^ Y");
     TEST_ASSERT_MESSAGE( cpu_registers.data_register[15] == 0x00, "Instruction 8XY4 doens't store in VF whether there was carry or not");
+
+    executeInstruction(0x8344, &cpu_registers);
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[15] == 0x01, "Instruction 8XY4 doens't store in VF whether there was carry or not");    
+
+
 }
 
 int main(void) {

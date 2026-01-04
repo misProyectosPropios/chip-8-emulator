@@ -4,17 +4,17 @@
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     //6XNN 	Store number NN in register VX
-    if ((opcode & 0x6000) == 0x6000) {
+    if ((opcode & 0xF000) == 0x6000) {
         uint8_t valueToStore = opcode & (0x00FF);
         uint8_t cpu_register = (opcode & (0x0F00)) >> 8;
         setValueRegister(cpu_register, valueToStore, cpu_registers);
     } 
-    if ((opcode & 0x7000) == 0x7000) {
+    else if ((opcode & 0xF000) == 0x7000) {
         uint8_t valueToAdd = opcode & (0x00FF);
         uint8_t cpu_register = (opcode & (0x0F00)) >> 8;
         addValueToRegister(cpu_register, valueToAdd, cpu_registers);
     }
-    if ((opcode & 0x800F) == 0x8000) {
+    else if ((opcode & 0xF00F) == 0x8000) {
         uint8_t register_to = (opcode & (0x0F00)) >> 8;
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
         moveValueFromXToY(register_from, register_to, cpu_registers);

@@ -46,6 +46,14 @@ void tests5_execute8XY2StoresInXValueOfANDBetweenXY(void) {
     TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0x00 , "Instruction 8XY2 doens't sotre in X the value of the operation X & Y");
 }
 
+void tests6_execute8XY2StoresInXValueOfXORBetweenXY(void) {
+    cpu_registers_t cpu_registers;
+    executeInstruction(0x60FC, &cpu_registers);
+    executeInstruction(0x61F3, &cpu_registers);
+    executeInstruction(0x8103, &cpu_registers);
+    TEST_ASSERT_MESSAGE( cpu_registers.data_register[1] == 0b00001100 , "Instruction 8XY2 doens't sotre in X the value of the operation X & Y");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -53,5 +61,6 @@ int main(void) {
     RUN_TEST(tests3_execute8XY0MovesValueFromYToX);
     RUN_TEST(tests4_execute8XY1StoresInXValueOfORBetweenXY);
     RUN_TEST(tests5_execute8XY2StoresInXValueOfANDBetweenXY);
+    RUN_TEST(tests6_execute8XY2StoresInXValueOfXORBetweenXY);
     return UNITY_END();
 }

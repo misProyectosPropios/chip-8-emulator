@@ -3,7 +3,9 @@ CFLAGS=-Wall -Wextra -Werror -g -Iinclude
 SANITIZE=-fsanitize=address,undefined
 
 SRC=src/chip8.c
-TEST_SRC=test/test_chip8.c test/unity/unity.c
+HEADER_SRC=src/chip8.h
+TEST=test/test_chip8.c
+TEST_SRC= $(TEST) test/unity/unity.c
 
 TARGET=chip8
 TEST_TARGET=chip8_tests
@@ -17,6 +19,13 @@ tests:
 
 testing:
 	gdb ./$(TEST_TARGET)
+
+git_code:
+	git add $(SRC) $(HEADER_SRC) 
+
+git_test
+	git add $(TEST)
+
 
 clean:
 	rm -f $(TARGET) $(TEST_TARGET)

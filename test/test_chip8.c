@@ -87,6 +87,22 @@ void tests8_execute8XY5SubstractsTheValueAndAddValuesCorrectly(void) {
     TEST_ASSERT_MESSAGE( cpu_registers.data_register[15] == 0x00, "Instruction 8XY5 doesn't store in VF whether there was carry or not");    
     TEST_ASSERT_MESSAGE( cpu_registers.data_register[0] == 0x02, "Instruction 8X55 doesn't store in VX the result of the operation");   
 }
+
+void tests9_execute8XY6ShiftRigthTheValue(void) {
+    cpu_registers_t cpu_registers;
+    executeInstruction(0x6002, &cpu_registers); // V0 = 0x02
+    executeInstruction(0x61FF, &cpu_registers); // V1 = 0xFF
+    executeInstruction(0x8015, &cpu_registers); // V1 = 0x01 VF = 0x00
+
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x01, "Instruction 8XY6 doesnt shift the value storing in VY");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0xF] == 0xFF, "Instruction 8XY6 doesnt store the least significant bit prior to the shift in VF");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x02, "Instruction 8XY6 doesnt shift the value storing in VY");
+    
+
+
+}
+
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -97,5 +113,6 @@ int main(void) {
     RUN_TEST(tests6_execute8XY3StoresInXValueOfXORBetweenXY);
     RUN_TEST(tests7_execute8XY4AddsTheValue);
     RUN_TEST(tests8_execute8XY5SubstractsTheValueAndAddValuesCorrectly);
+    RUN_TEST(tests9_execute8XY6ShiftRigthTheValue);
     return UNITY_END();
 }

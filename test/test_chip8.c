@@ -90,13 +90,13 @@ void tests8_execute8XY5SubstractsTheValueAndAddValuesCorrectly(void) {
 
 void tests9_execute8XY6ShiftRigthTheValue(void) {
     cpu_registers_t cpu_registers;
-    executeInstruction(0x6002, &cpu_registers); // V0 = 0x02
-    executeInstruction(0x61FF, &cpu_registers); // V1 = 0xFF
-    executeInstruction(0x8016, &cpu_registers); // V1 = 0x01 VF = 0x00
+    executeInstruction(0x6103, &cpu_registers); // V1 = 0x0x03
+    // Instruction: 8016 (VX = V0, VY = V1)
+    executeInstruction(0x8016, &cpu_registers);
 
-    TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x01, "Instruction 8XY6 doesnt shift the value storing in VY");
-    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0xF] == 0xFF, "Instruction 8XY6 doesnt store the least significant bit prior to the shift in VF");
-    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x02, "Instruction 8XY6 doesnt shift the value storing in VY");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x01, "Instruction 8XY6 doesnt shift the value storing in VY");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0xF] == 0x01, "Instruction 8XY6 doesnt store the least significant bit prior to the shift in VF");
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x03, "Instruction 8XY6 doesnt shift the value storing in VY");
     
 
 

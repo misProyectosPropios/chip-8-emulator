@@ -4,22 +4,32 @@
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     //6XNN 	Store number NN in register VX
-    if (opcode & 0x6000) {
+    if ((opcode & 0x6000) == 0x6000) {
         uint8_t valueToStore = opcode & (0x00FF);
         uint8_t cpu_register = (opcode & (0x0F00)) >> 8;
-        setValueRegister(cpu_register, valueToStore, cpu_register);
+        setValueRegister(cpu_register, valueToStore, cpu_registers);
     } 
-    if (opcode & 0x7000) {
-        uint8_t valueToStore = opcode & (0x00FF);
+    if ((opcode & 0x7000) == 0x7000) {
+        uint8_t valueToAdd = opcode & (0x00FF);
         uint8_t cpu_register = (opcode & (0x0F00)) >> 8;
-        setValueRegister(cpu_register, valueToStore, cpu_register);
-    } 
+        addValueToRegister(cpu_register, valueToAdd, cpu_registers);
+    }
+    if ((opcode & 0x800F) == 0x8000) {
+        uint8_t register_to = (opcode & (0x0F00)) >> 8;
+        uint8_t register_from = (opcode & (0x00F0)) >> 4;
+        moveValueFromXToY(register_from, register_to, cpu_registers);
+    }
+    
 }
 
-setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers) {
+void setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers) {
      cpu_registers->data_register[cpu_register] = valueToStore;
 }
 
-addValueToRegister(uint8_t cpu_register, uint8_t valueToAdd, cpu_registers_t* cpu_registers) {
+void addValueToRegister(uint8_t cpu_register, uint8_t valueToAdd, cpu_registers_t* cpu_registers) {
     cpu_registers->data_register[cpu_register] = cpu_registers->data_register[cpu_register] + valueToAdd;
+}
+
+void moveValueFromXToY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+    cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from];
 }

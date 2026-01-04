@@ -19,7 +19,11 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
         moveValueFromXToY(register_from, register_to, cpu_registers);
     }
-    
+    else if ((opcode & 0xF00F) == 0x8001) {
+        uint8_t register_to = (opcode & (0x0F00)) >> 8;
+        uint8_t register_from = (opcode & (0x00F0)) >> 4;
+        storeInXValueOfOrBetweenXY(register_from, register_to, cpu_registers);
+    }
 }
 
 void setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers) {
@@ -32,4 +36,8 @@ void addValueToRegister(uint8_t cpu_register, uint8_t valueToAdd, cpu_registers_
 
 void moveValueFromXToY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from];
+}
+
+void storeInXValueOfOrBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+    cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from] | cpu_registers->data_register[register_to];
 }

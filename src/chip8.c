@@ -3,8 +3,31 @@
 
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
-    //6XNN 	Store number NN in register VX
-    if ((opcode & 0xF000) == 0x6000) {
+    if ((opcode & 0xFFFF) == 0x00E0) {
+
+    } 
+    else if ((opcode & 0xFFFF) == 0x00EE) {
+
+    }
+    else if ((opcode & 0xF000) == 0x000) {
+
+    }
+    else if ((opcode & 0xF000) == 0x1000) {
+
+    }
+    else if ((opcode & 0xF000) == 0x2000) {
+
+    }
+    else if ((opcode & 0xF000) == 0x3000) {
+
+    }
+    else if ((opcode & 0xF000) == 0x4000) {
+
+    }
+    else if ((opcode & 0xF00F) == 0x5000) {
+
+    }
+    else if ((opcode & 0xF000) == 0x6000) {
         uint8_t valueToStore = opcode & (0x00FF);
         uint8_t cpu_register = (opcode & (0x0F00)) >> 8;
         setValueRegister(cpu_register, valueToStore, cpu_registers);
@@ -58,6 +81,57 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t register_to = (opcode & (0x0F00)) >> 8;
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
         storeInXValueOfLeftShiftBetweenXYStoringCarry(register_from, register_to, cpu_registers);
+    }
+    else if ((opcode & 0xF000) == 0xA000) {
+        //Store memory address NNN in register I
+    }
+    else if ((opcode & 0xF000) == 0xB000) {
+        //Jump to address NNN + V0
+    }
+    else if ((opcode & 0xF000) == 0xC000) {
+        //Set VX to a random number with a mask of NN
+    }
+    else if ((opcode & 0xF000) == 0xD000) {
+        /*Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I
+Set VF to 01 if any set pixels are changed to unset, and 00 otherwise*/
+    }
+    else if ((opcode & 0xF0FF) == 0xE09E) {
+        /*
+        Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed
+        */
+    }
+    else if ((opcode & 0xF0FF) == 0xE0A1) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF007) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF007) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF00A) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF015) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF018) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF01E) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF029) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF033) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF055) {
+        //Do something
+    }
+    else if ((opcode & 0xF0FF) == 0xF065) {
+        //Do something
     }
 }
 

@@ -58,3 +58,7 @@ dkms.conf
 main
 chip8
 chip8_tests
+
+#GDB
+
+.gdb_history

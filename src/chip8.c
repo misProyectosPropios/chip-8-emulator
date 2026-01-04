@@ -49,6 +49,11 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
         storeInXValueOfRightShiftBetweenXYStoringCarry(register_from, register_to, cpu_registers);
     }
+    else if ((opcode & 0xF00F) == 0x8007) {
+        uint8_t register_to = (opcode & (0x0F00)) >> 8;
+        uint8_t register_from = (opcode & (0x00F0)) >> 4;
+        storeInXValueOfSubstractVXFromVYStoringCarry(register_from, register_to, cpu_registers);
+    }
 }
 
 void setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers) {
@@ -98,4 +103,10 @@ void storeInXValueOfRightShiftBetweenXYStoringCarry(uint8_t register_from, uint8
     cpu_registers->data_register[0xF] = leastSignificantBit;
 }
 
-
+void storeInXValueOfSubstractVXFromVYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+    uint8_t fromValue = cpu_registers->data_register[register_from];
+    uint8_t toValue = cpu_registers->data_register[register_to];
+    uint16_t substract = fromValue - toValue;
+    cpu_registers->data_register[register_to] = substract & 0xFF;
+    cpu_registers->data_register[0xF] = (toValue > fromValue) ? 1 : 0;
+}

@@ -22,3 +22,5 @@ void storeInXValueOfOrBetweenXY(uint8_t register_from, uint8_t register_to, cpu_
 void storeInXValueOfANDBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
 void storeInXValueOfXORBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+
+void storeInXValueOfSumBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);

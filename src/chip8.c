@@ -34,6 +34,11 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
         storeInXValueOfXORBetweenXY(register_from, register_to, cpu_registers);
     }
+    else if ((opcode & 0xF00F) == 0x8004) {
+        uint8_t register_to = (opcode & (0x0F00)) >> 8;
+        uint8_t register_from = (opcode & (0x00F0)) >> 4;
+        storeInXValueOfSumBetweenXYStoringCarry(register_from, register_to, cpu_registers);
+    }
 }
 
 void setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers) {
@@ -58,4 +63,12 @@ void storeInXValueOfANDBetweenXY(uint8_t register_from, uint8_t register_to, cpu
 
 void storeInXValueOfXORBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from] ^ cpu_registers->data_register[register_to];
+}
+
+void storeInXValueOfSumBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+    uint8_t fromValue = cpu_registers->data_register[register_from];
+    uint8_t toValue = cpu_registers->data_register[register_to];
+    uint16_t sum = fromValue + toValue;
+    cpu_registers->data_register[register_to] = sum & 0xFF;
+    cpu_registers->data_register[0xF] = (sum > 0xFF) ? 1 : 0;
 }

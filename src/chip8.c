@@ -14,7 +14,8 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         memset(cpu_registers->display, 0, SCREEN_WIDTH * SCREEN_HEIGHT);
     } 
     else if ((opcode & 0xFFFF) == 0x00EE) {
-
+        cpu_registers->pc = cpu_registers->stack[--cpu_registers->sp];
+        cpu_registers->pc += 2;
     }
     else if ((opcode & 0xF000) == 0x0000) {
         //Its not neccesary to implement
@@ -23,8 +24,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->pc += opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x2000) {
-        cpu_registers->pc = cpu_registers->stack[--cpu_registers->sp];
-        cpu_registers->pc += 2;
+        
     }
     else if ((opcode & 0xF000) == 0x3000) {
 

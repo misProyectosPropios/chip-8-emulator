@@ -10,6 +10,7 @@ typedef struct cpu_registers {
     uint16_t pc;
     uint8_t  display[SCREEN_HEIGHT][SCREEN_WIDTH];
     uint8_t  memory[MEMORY_SIZE];
+    uint8_t  sp;
     uint16_t stack[16];
     uint8_t  keypad[16];
     uint8_t  delay_timer;

@@ -23,7 +23,8 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->pc += opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x2000) {
-
+        cpu_registers->pc = cpu_registers->stack[--cpu_registers->sp];
+        cpu_registers->pc += 2;
     }
     else if ((opcode & 0xF000) == 0x3000) {
 

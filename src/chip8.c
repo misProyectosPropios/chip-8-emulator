@@ -1,19 +1,26 @@
 #include <stdint.h>
 #include "chip8.h"
 
+cpu_registers_t* createChip8() {
+    cpu_registers_t* chip8 = 0;
+    return chip8;
+}
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
-    if ((opcode & 0xFFFF) == 0x00E0) {
 
+    cpu_registers->pc += 2;
+
+    if ((opcode & 0xFFFF) == 0x00E0) {
+        memset(cpu_registers->display, 0, SCREEN_WIDTH * SCREEN_HEIGHT);
     } 
     else if ((opcode & 0xFFFF) == 0x00EE) {
 
     }
-    else if ((opcode & 0xF000) == 0x000) {
-
+    else if ((opcode & 0xF000) == 0x0000) {
+        //Its not neccesary to implement
     }
     else if ((opcode & 0xF000) == 0x1000) {
-
+        cpu_registers->pc += opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x2000) {
 

@@ -1,20 +1,30 @@
 #include <stdint.h>
 
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 32
+#define MEMORY_SIZE 4096
+
 typedef struct cpu_registers {
     uint8_t data_register[16]; //16 different register: from V0 to VF
     uint16_t address_register; //in instruction set its called I
     uint16_t pc;
-    uint8_t display[32][64];
-    uint8_t  memory[4096];
+    uint8_t  display[SCREEN_HEIGHT][SCREEN_WIDTH];
+    uint8_t  memory[MEMORY_SIZE];
+    uint16_t stack[16];
     uint8_t  keypad[16];
     uint8_t  delay_timer;
     uint8_t  sound_timer;
 } cpu_registers_t;
 
 
-// Functions
+
+// Functionstest/unity
+
+cpu_registers_t* createChip8();
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers);
+
+// Extra functions
 
 void setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers);
 

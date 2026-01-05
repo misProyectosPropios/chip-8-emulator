@@ -3,11 +3,16 @@
 typedef struct cpu_registers {
     uint8_t data_register[16]; //16 different register: from V0 to VF
     uint16_t address_register; //in instruction set its called I
+    uint16_t pc;
+    uint8_t display[32][64];
+    uint8_t  memory[4096];
+    uint8_t  keypad[16];
+    uint8_t  delay_timer;
+    uint8_t  sound_timer;
 } cpu_registers_t;
 
+
 // Functions
-
-
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers);
 

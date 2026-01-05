@@ -62,3 +62,8 @@ chip8_tests
 #GDB
 
 .gdb_history
+
+
+# Testing Games
+
+*.ch8

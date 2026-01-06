@@ -28,7 +28,7 @@ git_test:
 
 
 compile:
-	gcc ./src/$(EXECUTABLE).c -o ./src/$(EXECUTABLE) `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf
+	gcc $(CFLAGS) $(SRC) ./src/$(EXECUTABLE).c -o ./src/$(EXECUTABLE) `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf
 
 run:
 	SDL_VIDEODRIVER=x11 ./src/$(EXECUTABLE)

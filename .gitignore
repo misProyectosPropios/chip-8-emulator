@@ -67,3 +67,8 @@ chip8_tests
 # Testing Games
 
 *.ch8
+
+# Folders to tests
+
+fonts/
+images/

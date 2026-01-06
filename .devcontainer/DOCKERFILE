@@ -1,7 +1,7 @@
 FROM debian:stable-slim
 
 RUN apt-get update \
-    && apt-get install -y git g++ gcc make gdb valgrind build-essential wget python3-pygments libsdl2-dev x11-apps \
+    && apt-get install -y git g++ gcc make gdb valgrind build-essential wget python3-pygments libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev x11-apps \
     && apt-get clean
 
 WORKDIR /root

@@ -28,13 +28,32 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->pc = opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x3000) {
-
+        //Skip the following instruction if the value of register VX equals NN
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        uint8_t NN = opcode & 0x00FF;
+        uint8_t regValue = cpu_registers->data_register[X];
+        if (regValue == NN) {
+            cpu_registers->pc += 2;
+        }
     }
     else if ((opcode & 0xF000) == 0x4000) {
-
+        //Skip the following instruction if the value of register VX equals NN
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        uint8_t NN = opcode & 0x00FF;
+        uint8_t regValue = cpu_registers->data_register[X];
+        if (regValue != NN) {
+            cpu_registers->pc += 2;
+        }
     }
     else if ((opcode & 0xF00F) == 0x5000) {
-
+        //Skip the following instruction if the value of register VX is equal to the value of register VY 
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        uint8_t Y = (opcode & 0x00F0) >> 4;
+        uint8_t regVX = cpu_registers->data_register[X];
+        uint8_t regVY = cpu_registers->data_register[Y];
+        if (regVX == regVY) {
+            cpu_registers->pc += 2;
+        }
     }
     else if ((opcode & 0xF000) == 0x6000) {
         uint8_t valueToStore = opcode & (0x00FF);
@@ -93,6 +112,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF000) == 0xA000) {
         //Store memory address NNN in register I
+        uint16_t value;
     }
     else if ((opcode & 0xF000) == 0xB000) {
         //Jump to address NNN + V0

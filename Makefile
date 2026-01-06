@@ -6,7 +6,7 @@ SRC=src/chip8.c
 HEADER_SRC=src/chip8.h
 TEST=test/test_chip8.c
 TEST_SRC= $(TEST) test/unity/unity.c
-
+EXECUTABLE=main
 TARGET=chip8
 TEST_TARGET=chip8_tests
 
@@ -26,6 +26,12 @@ git_code:
 git_test:
 	git add $(TEST)
 
+
+compile:
+	gcc ./src/$(EXECUTABLE).c -o ./src/$(EXECUTABLE) `sdl2-config --cflags --libs`
+
+run:
+	SDL_VIDEODRIVER=x11 ./src/$(EXECUTABLE)
 
 clean:
 	rm -f $(TARGET) $(TEST_TARGET)

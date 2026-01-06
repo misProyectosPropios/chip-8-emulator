@@ -1,14 +1,14 @@
 #include <stdint.h>
 
-#define SCREEN_WIDTH 64
-#define SCREEN_HEIGHT 32
+#define CHIP8_SCREEN_WIDTH 64
+#define CHIP8_SCREEN_HEIGHT 32
 #define MEMORY_SIZE 4096
 
 typedef struct cpu_registers {
     uint8_t data_register[16]; //16 different register: from V0 to VF
     uint16_t address_register; //in instruction set its called I
     uint16_t pc;
-    uint8_t  display[SCREEN_HEIGHT][SCREEN_WIDTH];
+    uint8_t  display[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
     uint8_t  memory[MEMORY_SIZE];
     uint8_t  sp;
     uint16_t stack[16];
@@ -52,4 +52,4 @@ void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_
 
 // Completely auxilary function
 
-uint8_t random(int min, int max);
+uint8_t randomBetween(int min, int max);

@@ -100,6 +100,10 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF000) == 0xC000) {
         //Set VX to a random number with a mask of NN
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        uint8_t NN = opcode & 0x0FFF;
+        uint8_t randomValue = rand(0, 0xFF);
+        cpu_registers->data_register[X] = NN && randomValue;
     }
     else if ((opcode & 0xF000) == 0xD000) {
         /*Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I
@@ -208,6 +212,6 @@ void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_
 }
 
 
-int random(int min, int max){
+uint8_t random(int min, int max) {
    return rand() % (max - min + 1) + min;
 }

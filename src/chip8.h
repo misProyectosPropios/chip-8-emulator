@@ -52,4 +52,4 @@ void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_
 
 // Completely auxilary function
 
-int random(int min, int max);
+uint8_t random(int min, int max);

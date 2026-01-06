@@ -24,7 +24,8 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->pc += opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x2000) {
-        
+        cpu_registers->stack[++cpu_registers->sp] = cpu_registers->pc;
+        cpu_registers->pc = opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x3000) {
 
@@ -95,6 +96,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF000) == 0xB000) {
         //Jump to address NNN + V0
+        cpu_registers->pc += (opcode & 0x0FFF) + cpu_registers->data_register[0];
     }
     else if ((opcode & 0xF000) == 0xC000) {
         //Set VX to a random number with a mask of NN
@@ -203,4 +205,9 @@ void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_
     uint8_t mostSignificantBit = fromValue & 0b10000000;
     cpu_registers->data_register[register_to_write] = fromValue << 1;
     cpu_registers->data_register[0xF] = mostSignificantBit;
+}
+
+
+int random(int min, int max){
+   return rand() % (max - min + 1) + min;
 }

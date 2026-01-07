@@ -23,6 +23,8 @@ typedef struct cpu_registers {
 
 cpu_registers_t* createChip8();
 
+uint16_t fetchInstruction(cpu_registers_t* cpu);
+
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers);
 
 // Extra functions

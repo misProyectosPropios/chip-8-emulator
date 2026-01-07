@@ -43,22 +43,26 @@ cpu_registers_t* createChip8() {
     return chip8;
 }
 
+uint16_t fetchInstruction(cpu_registers_t* cpu) {
+    uint16_t opcode = (cpu->memory[cpu->pc] << 8) | cpu->memory[cpu->pc + 1];
+    return opcode;
+}
+
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
 
     cpu_registers->pc += 2;
 
     if ((opcode & 0xFFFF) == 0x00E0) {
-        memset(cpu_registers->display, 0, CHIP8_SCREEN_WIDTH * CHIP8_SCREEN_HEIGHT);
+        memset(cpu_registers->display, 0, CHIP8_SCREEN_WIDTH * CHIP8_SCREEN_HEIGHT * sizeof(uint8_t));
     } 
     else if ((opcode & 0xFFFF) == 0x00EE) {
         cpu_registers->pc = cpu_registers->stack[--cpu_registers->sp];
-        cpu_registers->pc += 2;
     }
     else if ((opcode & 0xF000) == 0x0000) {
         //Its not neccesary to implement
     }
     else if ((opcode & 0xF000) == 0x1000) {
-        cpu_registers->pc += opcode & 0x0FFF;
+        cpu_registers->pc = opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x2000) {
         cpu_registers->stack[++cpu_registers->sp] = cpu_registers->pc;
@@ -153,14 +157,14 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF000) == 0xB000) {
         //Jump to address NNN + V0
-        cpu_registers->pc += (opcode & 0x0FFF) + cpu_registers->data_register[0];
+        cpu_registers->pc = (opcode & 0x0FFF) + cpu_registers->data_register[0];
     }
     else if ((opcode & 0xF000) == 0xC000) {
         //Set VX to a random number with a mask of NN
         uint8_t X = (opcode & 0x0F00) >> 8;
         uint8_t NN = opcode & 0x0FFF;
         uint8_t randomValue = randomBetween(0, 0xFF);
-        cpu_registers->data_register[X] = NN && randomValue;
+        cpu_registers->data_register[X] = NN & randomValue;
     }
         else if ((opcode & 0xF000) == 0xD000) {
             /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.

@@ -4,7 +4,42 @@
 #include "chip8.h"
 
 cpu_registers_t* createChip8() {
-    cpu_registers_t* chip8 = 0;
+    cpu_registers_t* chip8 = malloc(sizeof(cpu_registers_t));
+    if (!chip8) return NULL;
+
+    /* Zero all CPU state first */
+    memset(chip8, 0, sizeof(cpu_registers_t));
+
+    /* Initialize registers */
+    chip8->pc = 0x200; /* Programs start at 0x200 */
+    chip8->sp = 0;
+    chip8->address_register = 0;
+    chip8->delay_timer = 0;
+    chip8->sound_timer = 0;
+
+    /* Standard CHIP-8 fontset (0-F), each character 5 bytes */
+    static const uint8_t chip8_fontset[80] = {
+        0xF0,0x90,0x90,0x90,0xF0, /* 0 */
+        0x20,0x60,0x20,0x20,0x70, /* 1 */
+        0xF0,0x10,0xF0,0x80,0xF0, /* 2 */
+        0xF0,0x10,0xF0,0x10,0xF0, /* 3 */
+        0x90,0x90,0xF0,0x10,0x10, /* 4 */
+        0xF0,0x80,0xF0,0x10,0xF0, /* 5 */
+        0xF0,0x80,0xF0,0x90,0xF0, /* 6 */
+        0xF0,0x10,0x20,0x40,0x40, /* 7 */
+        0xF0,0x90,0xF0,0x90,0xF0, /* 8 */
+        0xF0,0x90,0xF0,0x10,0xF0, /* 9 */
+        0xF0,0x90,0xF0,0x90,0x90, /* A */
+        0xE0,0x90,0xE0,0x90,0xE0, /* B */
+        0xF0,0x80,0x80,0x80,0xF0, /* C */
+        0xE0,0x90,0x90,0x90,0xE0, /* D */
+        0xF0,0x80,0xF0,0x80,0xF0, /* E */
+        0xF0,0x80,0xF0,0x80,0x80  /* F */
+    };
+
+    /* Load fontset into memory at 0x50 (conventional location) */
+    memcpy(&chip8->memory[0x50], chip8_fontset, sizeof(chip8_fontset));
+
     return chip8;
 }
 
@@ -127,11 +162,24 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t randomValue = randomBetween(0, 0xFF);
         cpu_registers->data_register[X] = NN && randomValue;
     }
-    else if ((opcode & 0xF000) == 0xD000) {
-        /*Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I
-Set VF to 01 if any set pixels are changed to unset, and 00 otherwise*/
-    cpu_registers->data_register[0xF] = 0;
-    }
+        else if ((opcode & 0xF000) == 0xD000) {
+            /*Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I
+    Set VF to 01 if any set pixels are changed to unset, and 00 otherwise*/
+            cpu_registers->data_register[0xF] = 0;
+            uint16_t I = cpu_registers->address_register;
+            uint8_t N = opcode & 0x000F;
+            uint8_t Y = cpu_registers->data_register[(opcode & 0x00F0) >> 4];
+            uint8_t X = cpu_registers->data_register[(opcode & 0x0F00) >> 8];
+
+            for (int i = 0; i < N; i++) { // 
+                uint8_t spriteByte = cpu_registers->memory[cpu_registers->address_register + i];
+                for (int j = 0; j < 8; j++) {
+                    uint8_t valueAtMemory = cpu_registers->memory[I + i * 8 + j];
+                    cpu_registers->display[X + i][Y + j] = cpu_registers->display[X + i][Y + j] ^ valueAtMemory;
+                }
+            }
+            
+        }
     else if ((opcode & 0xF0FF) == 0xE09E) {
         /*
         Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed

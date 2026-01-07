@@ -163,22 +163,30 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->data_register[X] = NN && randomValue;
     }
         else if ((opcode & 0xF000) == 0xD000) {
-            /*Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I
-    Set VF to 01 if any set pixels are changed to unset, and 00 otherwise*/
+            /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.
+               Set VF to 1 if any set pixels are changed to unset (collision), otherwise 0. */
             cpu_registers->data_register[0xF] = 0;
             uint16_t I = cpu_registers->address_register;
             uint8_t N = opcode & 0x000F;
-            uint8_t Y = cpu_registers->data_register[(opcode & 0x00F0) >> 4];
-            uint8_t X = cpu_registers->data_register[(opcode & 0x0F00) >> 8];
+            uint8_t VY = cpu_registers->data_register[(opcode & 0x00F0) >> 4];
+            uint8_t VX = cpu_registers->data_register[(opcode & 0x0F00) >> 8];
 
-            for (int i = 0; i < N; i++) { // 
-                uint8_t spriteByte = cpu_registers->memory[cpu_registers->address_register + i];
-                for (int j = 0; j < 8; j++) {
-                    uint8_t valueAtMemory = cpu_registers->memory[I + i * 8 + j];
-                    cpu_registers->display[X + i][Y + j] = cpu_registers->display[X + i][Y + j] ^ valueAtMemory;
+            for (int row = 0; row < N; row++) {
+                uint8_t spriteByte = cpu_registers->memory[I + row];
+                for (int bit = 0; bit < 8; bit++) {
+                    uint8_t spritePixel = (spriteByte >> (7 - bit)) & 0x1;
+                    if (!spritePixel) continue;
+
+                    uint16_t x = (VX + bit) % CHIP8_SCREEN_WIDTH;
+                    uint16_t y = (VY + row) % CHIP8_SCREEN_HEIGHT;
+
+                    uint8_t *screenPixel = &cpu_registers->display[y][x];
+                    if (*screenPixel == 1 && spritePixel == 1) {
+                        cpu_registers->data_register[0xF] = 1;
+                    }
+                    *screenPixel = (*screenPixel) ^ spritePixel;
                 }
             }
-            
         }
     else if ((opcode & 0xF0FF) == 0xE09E) {
         /*

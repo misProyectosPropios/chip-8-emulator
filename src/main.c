@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <time.h>
 #include "chip8.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 #define WINDOW_TITLE "05 Create Text"
 #define SCREEN_WIDTH 64 << 4
@@ -13,6 +15,7 @@
 #define IMAGE_FLAGS IMG_INIT_PNG
 #define TEXT_SIZE 80
 
+static FILE *log_file = NULL;
 
 struct Game {
     SDL_Window *window;
@@ -24,7 +27,8 @@ bool sdl_initialize(struct Game *game);
 void cleanAll(cpu_registers_t* cpu, struct Game *game, int exit_status);
 
 static void renderChip8Screen(struct Game *game, cpu_registers_t *cpu) {
-    int scale = SCREEN_WIDTH / CHIP8_SCREEN_WIDTH;
+    int scale = (SCREEN_WIDTH) / (CHIP8_SCREEN_WIDTH);
+    
     SDL_Rect rect;
     rect.w = scale;
     rect.h = scale;
@@ -42,11 +46,10 @@ static void renderChip8Screen(struct Game *game, cpu_registers_t *cpu) {
             SDL_RenderFillRect(game->renderer, &rect);
         }
     }
+    
 }
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
+
 
 uint8_t *load_rom(const char *path, size_t *out_size) {
     FILE *f = fopen(path, "rb");
@@ -93,7 +96,14 @@ void print_rom_hex(uint8_t *rom, size_t size) {
 
 
 int main() {
-    char nombre[50];
+    log_file = fopen("./chip8.log", "w");
+    if (!log_file) {
+        perror("fopen log");
+        return 1;
+    }
+    printf("Creation of the chip8.log file");
+
+
     printf("Ingrese el nombre del juego: ");
     //scanf("%s", nombre);
 
@@ -106,7 +116,7 @@ int main() {
     size_t rom_size;
     uint8_t* rom = load_rom("./IBM Logo.ch8", &rom_size);
     if (rom == NULL) {
-        fprintf(stderr, "Error trying to open %s file", nombre);
+        fprintf(stderr, "Error trying to open %s file", "./IBM Logo.ch8");
         return 1;
     }
 
@@ -114,6 +124,13 @@ int main() {
     print_rom_hex(rom, rom_size);
     loadProgram(cpu, rom, rom_size);
     
+/*
+    for(int i = 0; i < 100; i++) {
+        uint16_t opcode = fetchInstruction(cpu);
+        fprintf(log_file, "PC=%03X OPCODE=%04X\n", cpu->pc, opcode);
+        executeInstruction(opcode, cpu);
+    }
+*/
     if (sdl_initialize(&game)) {
         cleanAll(cpu, &game, EXIT_FAILURE);
     }
@@ -138,14 +155,17 @@ int main() {
             default:
                 break;
             }
-        }
 
+            
+        }
+        int16_t opcode = fetchInstruction(cpu);
+        fprintf(log_file, "PC=%03X OPCODE=%04X\n", cpu->pc, opcode);
+        executeInstruction(opcode, cpu);
+        
         /* Clear screen to black then render the CHIP-8 framebuffer */
         SDL_SetRenderDrawColor(game.renderer, 0, 0, 0, 255);
         SDL_RenderClear(game.renderer);
-
         renderChip8Screen(&game, cpu);
-
         SDL_RenderPresent(game.renderer);
 
         SDL_Delay(16);
@@ -156,6 +176,10 @@ int main() {
 }
 
 void cleanAll(cpu_registers_t* cpu, struct Game *game, int exit_status) {
+    if (log_file) {
+        fclose(log_file);
+        log_file = NULL;
+    }
     free(cpu);
     game_cleanup(game, exit_status);
 }

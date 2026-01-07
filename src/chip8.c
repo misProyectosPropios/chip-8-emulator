@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "chip8.h"
 
 cpu_registers_t* createChip8() {
@@ -53,6 +54,12 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     cpu_registers->pc += 2;
 
     if ((opcode & 0xFFFF) == 0x00E0) {
+        
+        /*for(int i = 0; i < CHIP8_SCREEN_HEIGHT; i++) {
+            for(int j = 0; j < CHIP8_SCREEN_WIDTH; j++) {
+                cpu_registers->display[i][j] = 255;
+            }
+        }*/
         memset(cpu_registers->display, 0, CHIP8_SCREEN_WIDTH * CHIP8_SCREEN_HEIGHT * sizeof(uint8_t));
     } 
     else if ((opcode & 0xFFFF) == 0x00EE) {
@@ -65,7 +72,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->pc = opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x2000) {
-        cpu_registers->stack[++cpu_registers->sp] = cpu_registers->pc;
+        cpu_registers->stack[cpu_registers->sp++] = cpu_registers->pc;
         cpu_registers->pc = opcode & 0x0FFF;
     }
     else if ((opcode & 0xF000) == 0x3000) {
@@ -153,7 +160,9 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF000) == 0xA000) {
         //Store memory address NNN in register I
-        //uint16_t value;
+        uint16_t NNN = opcode & 0x0FFF;
+        //uint16_t value = cpu_registers->memory[NNN];
+        cpu_registers->address_register = NNN;
     }
     else if ((opcode & 0xF000) == 0xB000) {
         //Jump to address NNN + V0
@@ -166,32 +175,33 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t randomValue = randomBetween(0, 0xFF);
         cpu_registers->data_register[X] = NN & randomValue;
     }
-        else if ((opcode & 0xF000) == 0xD000) {
-            /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.
-               Set VF to 1 if any set pixels are changed to unset (collision), otherwise 0. */
-            cpu_registers->data_register[0xF] = 0;
-            uint16_t I = cpu_registers->address_register;
-            uint8_t N = opcode & 0x000F;
-            uint8_t VY = cpu_registers->data_register[(opcode & 0x00F0) >> 4];
-            uint8_t VX = cpu_registers->data_register[(opcode & 0x0F00) >> 8];
+    else if ((opcode & 0xF000) == 0xD000) {
+        /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.
+           Set VF to 1 if any set pixels are changed to unset (collision), otherwise 0. */
+        cpu_registers->data_register[0xF] = 0;
+        uint16_t I = cpu_registers->address_register;
+        uint8_t N = opcode & 0x000F;
+        uint8_t VY = cpu_registers->data_register[(opcode & 0x00F0) >> 4];
+        uint8_t VX = cpu_registers->data_register[(opcode & 0x0F00) >> 8];
+        printf("Modifing the screen\n");
+        for (int row = 0; row < N; row++) {
+            uint8_t spriteByte = cpu_registers->memory[I + row];
+            for (int bit = 0; bit < 8; bit++) {
+                uint8_t spritePixel = ((spriteByte >> (7 - bit)) & 0x1) ? 0xFF : 0x00;
 
-            for (int row = 0; row < N; row++) {
-                uint8_t spriteByte = cpu_registers->memory[I + row];
-                for (int bit = 0; bit < 8; bit++) {
-                    uint8_t spritePixel = (spriteByte >> (7 - bit)) & 0x1;
-                    if (!spritePixel) continue;
-
-                    uint16_t x = (VX + bit) % CHIP8_SCREEN_WIDTH;
-                    uint16_t y = (VY + row) % CHIP8_SCREEN_HEIGHT;
-
-                    uint8_t *screenPixel = &cpu_registers->display[y][x];
-                    if (*screenPixel == 1 && spritePixel == 1) {
-                        cpu_registers->data_register[0xF] = 1;
-                    }
-                    *screenPixel = (*screenPixel) ^ spritePixel;
+                if (!spritePixel) continue;
+                uint16_t x = (VX + bit) % CHIP8_SCREEN_WIDTH;
+                uint16_t y = (VY + row) % CHIP8_SCREEN_HEIGHT;
+                uint8_t *screenPixel = &cpu_registers->display[y][x];
+                if (*screenPixel != 0 && spritePixel != 0) {
+                    cpu_registers->data_register[0xF] = 1;
                 }
+                if (spritePixel) { printf("Drawing bit at X:%d Y:%d - SpriteBit:%d OldPixel:%d NewPixel:%d\n", x, y, spritePixel, *screenPixel, (*screenPixel) ^ spritePixel); }
+                
+                *screenPixel = (*screenPixel) ^ spritePixel;
             }
         }
+    }
     else if ((opcode & 0xF0FF) == 0xE09E) {
         /*
         Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed

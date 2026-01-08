@@ -3,7 +3,8 @@
 #define CHIP8_SCREEN_WIDTH 64
 #define CHIP8_SCREEN_HEIGHT 32
 #define MEMORY_SIZE 4096
-
+#define FONTSET_START_ADDRESS 0x50
+#define PROGRAM_START_ADDRESS 0x200
 typedef struct cpu_registers {
     uint8_t data_register[16]; //16 different register: from V0 to VF
     uint16_t address_register; //in instruction set its called I
@@ -12,7 +13,7 @@ typedef struct cpu_registers {
     uint8_t  memory[MEMORY_SIZE];
     uint8_t  sp;
     uint16_t stack[16];
-    uint8_t  keypad[16];
+    uint8_t  keypad[16]; // store whether a key was pressed or not
     uint8_t  delay_timer;
     uint8_t  sound_timer;
 } cpu_registers_t;

@@ -12,7 +12,7 @@ cpu_registers_t* createChip8() {
     memset(chip8, 0, sizeof(cpu_registers_t));
 
     /* Initialize registers */
-    chip8->pc = 0x200; /* Programs start at 0x200 */
+    chip8->pc = PROGRAM_START_ADDRESS; /* Programs start at 0x200 */
     chip8->sp = 0;
     chip8->address_register = 0;
     chip8->delay_timer = 0;
@@ -230,6 +230,9 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF0FF) == 0xF029) {
         //Do something
+        uint8_t Vx = (opcode & 0x0F00) >> 8;
+        uint8_t digit = cpu_registers->data_register[Vx];
+        cpu_registers->address_register = FONTSET_START_ADDRESS + 5 * digit;
     }
     else if ((opcode & 0xF0FF) == 0xF033) {
         //Do something

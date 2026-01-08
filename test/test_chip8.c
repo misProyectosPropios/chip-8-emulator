@@ -160,6 +160,23 @@ void tests14_execute3NNN_ifFalse(void) {
     TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 2NNN doesnt skip the following value if false");
 }
 
+void tests15_execute4NNN_ifFalse(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0xF0;
+    executeInstruction(0x40F0, &cpu_registers); 
+
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 2NNN doesnt skip the following value if condition false");
+}
+
+void tests15_execute4NNN_ifTrue(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0x00;
+    executeInstruction(0x40F0, &cpu_registers); 
+
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x204, "Instruction 2NNN doesnt skip the following value if condition true");
+}
 
 
 int main(void) {
@@ -179,6 +196,8 @@ int main(void) {
     RUN_TEST(tests13_execute2NNN);
     RUN_TEST(tests14_execute3NNN_ifTrue);
     RUN_TEST(tests14_execute3NNN_ifFalse);
+    RUN_TEST(tests15_execute4NNN_ifTrue);
+    RUN_TEST(tests15_execute4NNN_ifFalse);
     
     return UNITY_END();
 }

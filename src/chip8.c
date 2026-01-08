@@ -245,7 +245,8 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF0FF) == 0xF033) {
         //Store the binary-coded decimal equivalent of the value stored in register VX at addresses I, I + 1, and I + 2
-
+        uint8_t x = (opcode & 0x0F00) >> 8;
+        storeBinaryCodedDecimal(x, cpu_registers);
     }
     else if ((opcode & 0xF0FF) == 0xF055) {
         //Store the values of registers V0 to VX inclusive in memory starting at address I. I is set to I + X + 1 after operation

@@ -212,7 +212,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF0FF) == 0xF007) {
         //Store the current value of the delay timer in register VX
-        uint8_t X = opcode & 0x0F00;
+        uint8_t X = (opcode & 0x0F00) >> 8;
         cpu_registers->data_register[X] = cpu_registers->delay_timer;
     }
     else if ((opcode & 0xF0FF) == 0xF007) {
@@ -223,16 +223,19 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     }
     else if ((opcode & 0xF0FF) == 0xF015) {
         //Set the delay timer to the value of register VX
-        uint8_t X = opcode & 0x0F00;
+        uint8_t X = (opcode & 0x0F00) >> 8;
         cpu_registers->delay_timer = cpu_registers->data_register[X];
     }
     else if ((opcode & 0xF0FF) == 0xF018) {
         //Set the sound timer to the value of register VX
-        uint8_t X = opcode & 0x0F00;
+        uint8_t X = (opcode & 0x0F00) >> 8;
         cpu_registers->sound_timer = cpu_registers->data_register[X];
     }
     else if ((opcode & 0xF0FF) == 0xF01E) {
-        //Do something
+        //Add the value stored in register VX to register I
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        uint8_t Vx = cpu_registers->data_register[X];
+        cpu_registers->address_register += Vx;
     }
     else if ((opcode & 0xF0FF) == 0xF029) {
         //Do something
@@ -244,10 +247,18 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         //Do something
     }
     else if ((opcode & 0xF0FF) == 0xF055) {
-        //Do something
+        //Store the values of registers V0 to VX inclusive in memory starting at address I. I is set to I + X + 1 after operation
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        for(int i = 0; i <= X; i++) {
+            cpu_registers->memory[cpu_registers->address_register++] = cpu_registers->data_register[i];
+        }
     }
     else if ((opcode & 0xF0FF) == 0xF065) {
-        //Do something
+        //Fill registers V0 to VX inclusive with the values stored in memory starting at address I. I is set to I + X + 1 after operation
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        for(int i = 0; i <= X; i++) {
+            cpu_registers->data_register[i] = cpu_registers->memory[cpu_registers->address_register++];
+        }
     }
 }
 

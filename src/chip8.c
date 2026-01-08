@@ -211,7 +211,9 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         //Do something
     }
     else if ((opcode & 0xF0FF) == 0xF007) {
-        //Do something
+        //Store the current value of the delay timer in register VX
+        uint8_t X = opcode & 0x0F00;
+        cpu_registers->data_register[X] = cpu_registers->delay_timer;
     }
     else if ((opcode & 0xF0FF) == 0xF007) {
         //Do something
@@ -220,10 +222,13 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         //Do something
     }
     else if ((opcode & 0xF0FF) == 0xF015) {
-        //Do something
+        //Set the delay timer to the value of register VX
+        uint8_t X = opcode & 0x0F00;
+        cpu_registers->delay_timer = cpu_registers->data_register[X];
     }
     else if ((opcode & 0xF0FF) == 0xF018) {
-        //Do something
+        //Set the sound timer to the value of register VX
+        uint8_t X = opcode & 0x0F00;
     }
     else if ((opcode & 0xF0FF) == 0xF01E) {
         //Do something

@@ -238,6 +238,42 @@ void tests20_executeFX07(void) {
     TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0xDF, "Instruction FX07 doesnt modify the register selected with the delay timer");
 }
 
+void tests21_executeFX15(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.delay_timer = 0xFF;
+    cpu_registers.data_register[1] = 0x0E;
+    executeInstruction(0xF115, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[1] == 0x0E, "Instruction FX15 doesnt modify the delay timer with the register selected");
+}
+
+void tests22_executeFX18(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.sound_timer = 0xFF;
+    cpu_registers.data_register[0] = 0x0E;
+    executeInstruction(0xF018, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.sound_timer == 0x0E, "Instruction FX18 doesnt modify the sound_timer with the value of register");
+}
+
+void tests23_executeFX1E(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.address_register = 0x00FF;
+    cpu_registers.data_register[0] = 0xFF;
+    executeInstruction(0xF01E, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.address_register == ((0x00FF) + (0xFF)), "Instruction FX18 doesnt modify the sound_timer with the value of register");
+}
+
+void tests24_executeFX33(void) {
+    //TODO    
+}
+
+void tests25_executeFX55(void) {
+    //TODO
+}
+
+void tests26_executeFX65(void) {
+    //TODO
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -264,5 +300,10 @@ int main(void) {
     RUN_TEST(tests18_executeANNN);
     RUN_TEST(tests19_executeBNNN);
     RUN_TEST(tests20_executeFX07);
+    RUN_TEST(tests21_executeFX15);
+    RUN_TEST(tests22_executeFX18);
+    RUN_TEST(tests23_executeFX1E);
+    
+    
     return UNITY_END();
 }

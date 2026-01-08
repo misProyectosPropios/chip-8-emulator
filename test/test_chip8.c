@@ -215,6 +215,21 @@ void tests17_execute9XY0_ifFalse(void) {
     TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 9XY0 skip the following value if condition false");
 }
 
+void tests18_executeANNN(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.address_register = 0x00FF;
+    executeInstruction(0xA000, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.address_register == 0x0000, "Instruction ANNN modifies the value of address_register");
+}
+
+void tests19_executeBNNN(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x0FFF;
+    cpu_registers.data_register[0] = 0xFF;
+    executeInstruction(0xB00F, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == (0xFF + 0x0F), "Instruction BNNN modifies the value of PC incorrectly");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -238,6 +253,7 @@ int main(void) {
     RUN_TEST(tests16_execute5XY0_ifTrue);
     RUN_TEST(tests17_execute9XY0_ifTrue);
     RUN_TEST(tests17_execute9XY0_ifFalse);
-    
+    RUN_TEST(tests18_executeANNN);
+    RUN_TEST(tests19_executeBNNN);
     return UNITY_END();
 }

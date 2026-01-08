@@ -157,27 +157,46 @@ void tests14_execute3NNN_ifFalse(void) {
     cpu_registers.data_register[0] = 0x00;
     executeInstruction(0x30F0, &cpu_registers); 
 
-    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 2NNN doesnt skip the following value if false");
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 3XYNN doesnt skip the following value if false");
 }
 
-void tests15_execute4NNN_ifFalse(void) {
+void tests15_execute4XNN_ifFalse(void) {
     cpu_registers_t cpu_registers;
     cpu_registers.pc = 0x200;
     cpu_registers.data_register[0] = 0xF0;
     executeInstruction(0x40F0, &cpu_registers); 
 
-    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 2NNN doesnt skip the following value if condition false");
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 4XNN doesnt skip the following value if condition false");
 }
 
-void tests15_execute4NNN_ifTrue(void) {
+void tests15_execute4XNN_ifTrue(void) {
     cpu_registers_t cpu_registers;
     cpu_registers.pc = 0x200;
     cpu_registers.data_register[0] = 0x00;
     executeInstruction(0x40F0, &cpu_registers); 
 
-    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x204, "Instruction 2NNN doesnt skip the following value if condition true");
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x204, "Instruction 4XNN doesnt skip the following value if condition true");
 }
 
+void tests16_execute5XY0_ifTrue(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0x00;
+    cpu_registers.data_register[1] = 0x00;
+    executeInstruction(0x5010, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x204, "Instruction 5XY0 doesnt skip the following value if condition true");
+    
+}
+
+void tests16_execute5XY0_ifFalse(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0x00;
+    cpu_registers.data_register[1] = 0x10;
+    executeInstruction(0x5010, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 5XY0 doesnt skip the following value if condition true");
+    
+}
 
 int main(void) {
     UNITY_BEGIN();
@@ -196,8 +215,10 @@ int main(void) {
     RUN_TEST(tests13_execute2NNN);
     RUN_TEST(tests14_execute3NNN_ifTrue);
     RUN_TEST(tests14_execute3NNN_ifFalse);
-    RUN_TEST(tests15_execute4NNN_ifTrue);
-    RUN_TEST(tests15_execute4NNN_ifFalse);
+    RUN_TEST(tests15_execute4XNN_ifTrue);
+    RUN_TEST(tests15_execute4XNN_ifFalse);
+    RUN_TEST(tests16_execute5XY0_ifFalse);
+    RUN_TEST(tests16_execute5XY0_ifTrue);
     
     return UNITY_END();
 }

@@ -229,6 +229,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     else if ((opcode & 0xF0FF) == 0xF018) {
         //Set the sound timer to the value of register VX
         uint8_t X = opcode & 0x0F00;
+        cpu_registers->sound_timer = cpu_registers->data_register[X];
     }
     else if ((opcode & 0xF0FF) == 0xF01E) {
         //Do something

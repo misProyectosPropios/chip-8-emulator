@@ -194,8 +194,25 @@ void tests16_execute5XY0_ifFalse(void) {
     cpu_registers.data_register[0] = 0x00;
     cpu_registers.data_register[1] = 0x10;
     executeInstruction(0x5010, &cpu_registers); 
-    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 5XY0 doesnt skip the following value if condition true");
-    
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 5XY0 skip the following value if condition false");
+}
+
+void tests17_execute9XY0_ifTrue(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0x00;
+    cpu_registers.data_register[1] = 0x10;
+    executeInstruction(0x9010, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x204, "Instruction 9XY0 doesnt skip the following value if condition true");
+}
+
+void tests17_execute9XY0_ifFalse(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0x00;
+    cpu_registers.data_register[1] = 0x00;
+    executeInstruction(0x9010, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 9XY0 skip the following value if condition false");
 }
 
 int main(void) {
@@ -219,6 +236,8 @@ int main(void) {
     RUN_TEST(tests15_execute4XNN_ifFalse);
     RUN_TEST(tests16_execute5XY0_ifFalse);
     RUN_TEST(tests16_execute5XY0_ifTrue);
+    RUN_TEST(tests17_execute9XY0_ifTrue);
+    RUN_TEST(tests17_execute9XY0_ifFalse);
     
     return UNITY_END();
 }

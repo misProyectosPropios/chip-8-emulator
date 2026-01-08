@@ -332,10 +332,10 @@ void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers) {
     cpu_registers->memory[cpu_registers->address_register] = valueToStore;
     Vx = Vx % 100;
     valueToStore =  Vx / 10;
-    cpu_registers->memory[cpu_registers->address_register] = valueToStore;
+    cpu_registers->memory[cpu_registers->address_register + 1] = valueToStore;
     Vx = Vx % 10;
     valueToStore =  Vx;
-    cpu_registers->memory[cpu_registers->address_register] = valueToStore;
+    cpu_registers->memory[cpu_registers->address_register + 2] = valueToStore;
 
 }
 

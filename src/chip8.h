@@ -52,7 +52,7 @@ void storeInXValueOfSubstractVXFromVYStoringCarry(uint8_t register_from, uint8_t
 
 void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to_write, cpu_registers_t* cpu_registers);
 
-
+void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers);
 // Completely auxilary function
 
 uint8_t randomBetween(int min, int max);

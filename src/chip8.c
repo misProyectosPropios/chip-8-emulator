@@ -158,6 +158,15 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
         storeInXValueOfLeftShiftBetweenXYStoringCarry(register_from, register_to, cpu_registers);
     }
+    else if ((opcode & 0xF00F) == 0x9000) {
+        uint8_t X = (opcode & (0x0F00)) >> 8;
+        uint8_t Y = (opcode & (0x00F0)) >> 4;
+        uint8_t regVX = cpu_registers->data_register[X];
+        uint8_t regVY = cpu_registers->data_register[Y];
+        if (regVX != regVY) {
+            cpu_registers->pc += 2;
+        }
+    }
     else if ((opcode & 0xF000) == 0xA000) {
         //Store memory address NNN in register I
         uint16_t NNN = opcode & 0x0FFF;

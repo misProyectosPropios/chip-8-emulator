@@ -244,7 +244,8 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->address_register = FONTSET_START_ADDRESS + 5 * digit;
     }
     else if ((opcode & 0xF0FF) == 0xF033) {
-        //Do something
+        //Store the binary-coded decimal equivalent of the value stored in register VX at addresses I, I + 1, and I + 2
+
     }
     else if ((opcode & 0xF0FF) == 0xF055) {
         //Store the values of registers V0 to VX inclusive in memory starting at address I. I is set to I + X + 1 after operation
@@ -324,6 +325,19 @@ void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_
     cpu_registers->data_register[0xF] = mostSignificantBit;
 }
 
+void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers) {
+    uint8_t Vx = cpu_registers->data_register[X];
+    uint8_t valueToStore; 
+    valueToStore =  Vx / 100;
+    cpu_registers->memory[cpu_registers->address_register] = valueToStore;
+    Vx = Vx % 100;
+    valueToStore =  Vx / 10;
+    cpu_registers->memory[cpu_registers->address_register] = valueToStore;
+    Vx = Vx % 10;
+    valueToStore =  Vx;
+    cpu_registers->memory[cpu_registers->address_register] = valueToStore;
+
+}
 
 uint8_t randomBetween(int min, int max) {
    return rand() % (max - min + 1) + min;

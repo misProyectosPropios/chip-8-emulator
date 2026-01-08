@@ -122,6 +122,46 @@ void tests11_execute8XYEShiftLeftInstruction(void) {
     TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0x04, "Instruction 8XY6 doesnt shift the value storing in VY");
 }
 
+void tests12_execute1NNN(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    executeInstruction(0x1FF0, &cpu_registers); 
+
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0xFF0, "Instruction 1NNN doesnt modify the PC value");
+    
+}
+
+void tests13_execute2NNN(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.sp = 0;
+    executeInstruction(0x2FF0, &cpu_registers); 
+
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0xFF0, "Instruction 2NNN doesnt modify the PC value");
+    TEST_ASSERT_MESSAGE(cpu_registers.sp == 1, "Instruction 2NNN doesnt modify the sp value by one");
+    TEST_ASSERT_MESSAGE(cpu_registers.stack[0] == 0x202, "Instruction 2NNN doesnt modify the stack correctly");
+}
+
+void tests14_execute3NNN_ifTrue(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0xF0;
+    executeInstruction(0x30F0, &cpu_registers); 
+
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x204, "Instruction 2NNN doesnt skip the following value if true");
+}
+
+void tests14_execute3NNN_ifFalse(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.pc = 0x200;
+    cpu_registers.data_register[0] = 0x00;
+    executeInstruction(0x30F0, &cpu_registers); 
+
+    TEST_ASSERT_MESSAGE(cpu_registers.pc == 0x202, "Instruction 2NNN doesnt skip the following value if false");
+}
+
+
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -135,5 +175,10 @@ int main(void) {
     RUN_TEST(tests9_execute8XY6ShiftRigthTheValue);
     RUN_TEST(tests10_execute8XY7SubstractVYMinusVX);
     RUN_TEST(tests11_execute8XYEShiftLeftInstruction);
+    RUN_TEST(tests12_execute1NNN);
+    RUN_TEST(tests13_execute2NNN);
+    RUN_TEST(tests14_execute3NNN_ifTrue);
+    RUN_TEST(tests14_execute3NNN_ifFalse);
+    
     return UNITY_END();
 }

@@ -230,6 +230,14 @@ void tests19_executeBNNN(void) {
     TEST_ASSERT_MESSAGE(cpu_registers.pc == (0xFF + 0x0F), "Instruction BNNN modifies the value of PC incorrectly");
 }
 
+void tests20_executeFX07(void) {
+    cpu_registers_t cpu_registers;
+    cpu_registers.delay_timer = 0xDF;
+
+    executeInstruction(0xF007, &cpu_registers); 
+    TEST_ASSERT_MESSAGE(cpu_registers.data_register[0] == 0xDF, "Instruction FX07 doesnt modify the register selected with the delay timer");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(tests1_execute6XNNBehavesCorrectly);
@@ -255,5 +263,6 @@ int main(void) {
     RUN_TEST(tests17_execute9XY0_ifFalse);
     RUN_TEST(tests18_executeANNN);
     RUN_TEST(tests19_executeBNNN);
+    RUN_TEST(tests20_executeFX07);
     return UNITY_END();
 }

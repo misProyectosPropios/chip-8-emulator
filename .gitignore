@@ -74,3 +74,6 @@ chip8_tests
 fonts/
 images/
 
+#Logs
+
+*.log

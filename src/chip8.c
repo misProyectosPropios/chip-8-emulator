@@ -48,6 +48,15 @@ void loadProgram(cpu_registers_t *cpu, uint8_t *program, size_t size) {
     }
 }
 
+void storeKeydown(cpu_registers_t *cpu, uint8_t numberKey ) {
+    cpu->keypad[numberKey] = 1;
+}
+
+void storeKeyup(cpu_registers_t *cpu, uint8_t numberKey ) {
+    cpu->keypad[numberKey] = 0;
+}
+
+
 
 uint16_t fetchInstruction(cpu_registers_t* cpu) {
     uint16_t opcode =

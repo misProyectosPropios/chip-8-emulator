@@ -27,6 +27,8 @@ typedef struct cpu_registers {
 
 cpu_registers_t* createChip8();
 void loadProgram(cpu_registers_t *cpu, uint8_t *program, size_t size);
+void storeKeydown(cpu_registers_t *cpu, uint8_t numberKey);
+void storeKeyup(cpu_registers_t *cpu, uint8_t numberKey );
 uint16_t fetchInstruction(cpu_registers_t* cpu);
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers);

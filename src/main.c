@@ -255,14 +255,6 @@ void print_rom_hex(uint8_t *rom, size_t size) {
 }
 
 
-void storeKeydown(cpu_registers_t *cpu, uint8_t numberKey ) {
-    cpu->keypad[numberKey] = 1;
-}
-
-void storeKeyup(cpu_registers_t *cpu, uint8_t numberKey ) {
-    cpu->keypad[numberKey] = 0;
-}
-
 void log_keypad(FILE *log_file, cpu_registers_t *cpu) {
     fprintf(log_file, "KEYPAD=");
     for (int i = 0; i < 16; i++) {

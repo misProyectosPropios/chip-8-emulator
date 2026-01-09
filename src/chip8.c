@@ -326,7 +326,7 @@ void substract(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
     uint8_t VY = cpu->data_register[Y];
     uint8_t substract = VX - VY;
     cpu->data_register[X] = substract & 0xFF;
-    cpu->data_register[0xF] = (VY < VX) ? 1 : 0;
+    cpu->data_register[0xF] = (VY <= VX) ? 1 : 0;
 }
 
 void shr(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {

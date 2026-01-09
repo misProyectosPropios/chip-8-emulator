@@ -3,14 +3,6 @@
 static FILE *log_file = NULL;
 
 
-void logFile(FILE *log_file, uint16_t opcode, cpu_registers_t *cpu) {
-    fprintf(log_file, "PC=%03X OPCODE=%04X\n", cpu->pc, (uint16_t)opcode);   
-    log_keypad(log_file, cpu);
-    fprintf(log_file, "\n");
-    log_timers(log_file, cpu);
-    fprintf(log_file, "\n");
-}
-
 int main() {
     log_file = fopen("./chip8.log", "w");
     if (!log_file) {
@@ -45,25 +37,40 @@ int main() {
         return 1;
     }
 
+
+    uint32_t last_timer_tick = SDL_GetTicks();
     while (true) {
+        uint32_t frame_start = SDL_GetTicks();
+
         handleInput(cpu, game);
         int16_t opcode = fetchInstruction(cpu);
         logFile(log_file, opcode, cpu);
-        //log_keypad(log_file, cpu);
-        //log_timers(log_file, cpu);
-        //fprintf(log_file, "PC=%03X OPCODE=%04X\n", cpu->pc, (uint16_t)opcode);
         
         executeInstruction(opcode, cpu);
-        decrementTimer(cpu);
-        if(cpu->screen_modify) {
-            SDL_SetRenderDrawColor(game.renderer, 0, 0, 0, 255);
-            SDL_RenderClear(game.renderer);
-            renderChip8Screen(&game, cpu);
-            SDL_RenderPresent(game.renderer);
-            cpu->screen_modify = 0;
+
+        uint32_t now = SDL_GetTicks();
+        if (now - last_timer_tick >= TIMER_STEP_MS) {
+            decrementTimer(cpu);
+            
+            if(cpu->screen_modify) {
+                memcpy(cpu->display_front,
+                       cpu->display,
+                       sizeof(cpu->display_front));
+    cpu->screen_modify = 0;
+                SDL_SetRenderDrawColor(game.renderer, 0, 0, 0, 255);
+                SDL_RenderClear(game.renderer);
+                renderChip8Screen(&game, cpu);
+                SDL_RenderPresent(game.renderer);
+                cpu->screen_modify = 0;
+            }
+            last_timer_tick += TIMER_STEP_MS;
+        }
+        
+        uint32_t frame_time = SDL_GetTicks() - frame_start;
+        if (frame_time < CPU_STEP_MS) {
+            SDL_Delay(CPU_STEP_MS - frame_time);
         }
 
-        SDL_Delay(4);
     }
     return 0;
 }
@@ -78,7 +85,7 @@ static void renderChip8Screen(struct Game *game, cpu_registers_t *cpu) {
 
     for (int y = 0; y < CHIP8_SCREEN_HEIGHT; y++) {
         for (int x = 0; x < CHIP8_SCREEN_WIDTH; x++) {
-            uint8_t pixel = cpu->display[y][x];
+            uint8_t pixel = cpu->display_front[y][x];
             if (pixel) {
                 SDL_SetRenderDrawColor(game->renderer, 255, 255, 255, 255);
             } else {
@@ -253,6 +260,13 @@ void print_rom_hex(uint8_t *rom, size_t size) {
     }
 }
 
+void logFile(FILE *log_file, uint16_t opcode, cpu_registers_t *cpu) {
+    fprintf(log_file, "PC=%03X OPCODE=%04X\n", cpu->pc, (uint16_t)opcode);   
+    log_keypad(log_file, cpu);
+    fprintf(log_file, "\n");
+    log_timers(log_file, cpu);
+    fprintf(log_file, "\n");
+}
 
 void log_keypad(FILE *log_file, cpu_registers_t *cpu) {
     fprintf(log_file, "\tKEYPAD = \n\t");

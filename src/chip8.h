@@ -12,6 +12,7 @@ typedef struct cpu_registers {
     uint16_t address_register; //in instruction set its called I
     uint16_t pc;
     uint8_t  display[CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
+    uint8_t  display_front [CHIP8_SCREEN_HEIGHT][CHIP8_SCREEN_WIDTH];
     uint8_t  memory[MEMORY_SIZE];
     uint8_t  sp;
     uint16_t stack[16];

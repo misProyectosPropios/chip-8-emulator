@@ -15,6 +15,10 @@
 #define SCREEN_HEIGHT 32 << 4
 #define IMAGE_FLAGS IMG_INIT_PNG
 #define TEXT_SIZE 80
+#define CPU_HZ 500
+#define TIMER_HZ 60 
+#define CPU_STEP_MS   (1000 / CPU_HZ)     // 1.25 ms
+#define TIMER_STEP_MS (1000 / TIMER_HZ)   // 16.666 ms
 
 struct Game {
     SDL_Window *window;

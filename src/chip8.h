@@ -42,17 +42,19 @@ void storeInXValueOfANDBetweenXY(uint8_t register_from, uint8_t register_to, cpu
 
 void storeInXValueOfXORBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
-void storeInXValueOfSumBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+void sum(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
-void storeInXValueOfSubstractBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+void substract(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
-void storeInXValueOfRightShiftBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+void shr(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
-void storeInXValueOfSubstractVXFromVYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
+void substractInverse(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers);
 
-void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to_write, cpu_registers_t* cpu_registers);
+void shl(uint8_t register_from, uint8_t register_to_write, cpu_registers_t* cpu_registers);
 
 void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers);
+
+uint8_t isThereNotAnyKeyPress(uint8_t X, cpu_registers_t* cpu_registers);
 // Completely auxilary function
 
 uint8_t randomBetween(int min, int max);

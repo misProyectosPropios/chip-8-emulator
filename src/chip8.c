@@ -45,7 +45,9 @@ cpu_registers_t* createChip8() {
 }
 
 uint16_t fetchInstruction(cpu_registers_t* cpu) {
-    uint16_t opcode = (cpu->memory[cpu->pc] << 8) | cpu->memory[cpu->pc + 1];
+    uint16_t opcode =
+    ((uint16_t)cpu->memory[cpu->pc] << 8) |
+    (uint16_t)cpu->memory[cpu->pc + 1];
     return opcode;
 }
 
@@ -136,27 +138,27 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     else if ((opcode & 0xF00F) == 0x8004) {
         uint8_t register_to = (opcode & (0x0F00)) >> 8;
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
-        storeInXValueOfSumBetweenXYStoringCarry(register_from, register_to, cpu_registers);
+        sum(register_from, register_to, cpu_registers);
     }
     else if ((opcode & 0xF00F) == 0x8005) {
-        uint8_t register_to = (opcode & (0x0F00)) >> 8;
-        uint8_t register_from = (opcode & (0x00F0)) >> 4;
-        storeInXValueOfSubstractBetweenXYStoringCarry(register_from, register_to, cpu_registers);
+        uint8_t X = (opcode & (0x0F00)) >> 8;
+        uint8_t Y = (opcode & (0x00F0)) >> 4;
+        substract(X, Y, cpu_registers);
     }
     else if ((opcode & 0xF00F) == 0x8006) {
         uint8_t register_to = (opcode & (0x0F00)) >> 8;
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
-        storeInXValueOfRightShiftBetweenXYStoringCarry(register_from, register_to, cpu_registers);
+        shr(register_from, register_to, cpu_registers);
     }
     else if ((opcode & 0xF00F) == 0x8007) {
         uint8_t register_to = (opcode & (0x0F00)) >> 8;
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
-        storeInXValueOfSubstractVXFromVYStoringCarry(register_from, register_to, cpu_registers);
+        substractInverse(register_from, register_to, cpu_registers);
     }
     else if ((opcode & 0xF00F) == 0x800E) {
         uint8_t register_to = (opcode & (0x0F00)) >> 8;
         uint8_t register_from = (opcode & (0x00F0)) >> 4;
-        storeInXValueOfLeftShiftBetweenXYStoringCarry(register_from, register_to, cpu_registers);
+        shl(register_from, register_to, cpu_registers);
     }
     else if ((opcode & 0xF00F) == 0x9000) {
         uint8_t X = (opcode & (0x0F00)) >> 8;
@@ -180,7 +182,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     else if ((opcode & 0xF000) == 0xC000) {
         //Set VX to a random number with a mask of NN
         uint8_t X = (opcode & 0x0F00) >> 8;
-        uint8_t NN = opcode & 0x0FFF;
+        uint8_t NN = opcode & 0x00FF;
         uint8_t randomValue = randomBetween(0, 0xFF);
         cpu_registers->data_register[X] = NN & randomValue;
     }
@@ -215,20 +217,32 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         /*
         Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed
         */
+       
+       uint8_t X = (opcode & 0x0F00) >> 8;
+       uint8_t key = cpu_registers->data_register[X];
+       if (key < 16 && cpu_registers->keypad[key]) {
+            cpu_registers->pc += 2;
+       }
     }
     else if ((opcode & 0xF0FF) == 0xE0A1) {
-        //Do something
+        //Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed
+        uint8_t X = (opcode & 0x0F00) >> 8;
+       uint8_t key = cpu_registers->data_register[X];
+       if (!cpu_registers->keypad[key]) {
+            cpu_registers->pc += 2;
+       }
     }
     else if ((opcode & 0xF0FF) == 0xF007) {
         //Store the current value of the delay timer in register VX
         uint8_t X = (opcode & 0x0F00) >> 8;
         cpu_registers->data_register[X] = cpu_registers->delay_timer;
     }
-    else if ((opcode & 0xF0FF) == 0xF007) {
-        //Do something
-    }
     else if ((opcode & 0xF0FF) == 0xF00A) {
         //Do something
+        uint8_t X = (opcode & 0x0F00) >> 8;
+        if (isThereNotAnyKeyPress(X, cpu_registers)) {
+            cpu_registers->pc = cpu_registers->pc - 2;
+        }
     }
     else if ((opcode & 0xF0FF) == 0xF015) {
         //Set the delay timer to the value of register VX
@@ -261,14 +275,16 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         //Store the values of registers V0 to VX inclusive in memory starting at address I. I is set to I + X + 1 after operation
         uint8_t X = (opcode & 0x0F00) >> 8;
         for(int i = 0; i <= X; i++) {
-            cpu_registers->memory[cpu_registers->address_register++] = cpu_registers->data_register[i];
+            cpu_registers->memory[cpu_registers->address_register] = cpu_registers->data_register[i];
+            cpu_registers->address_register++;
         }
     }
     else if ((opcode & 0xF0FF) == 0xF065) {
         //Fill registers V0 to VX inclusive with the values stored in memory starting at address I. I is set to I + X + 1 after operation
         uint8_t X = (opcode & 0x0F00) >> 8;
         for(int i = 0; i <= X; i++) {
-            cpu_registers->data_register[i] = cpu_registers->memory[cpu_registers->address_register++];
+            cpu_registers->data_register[i] = cpu_registers->memory[cpu_registers->address_register];
+            cpu_registers->address_register++;
         }
     }
 }
@@ -297,7 +313,7 @@ void storeInXValueOfXORBetweenXY(uint8_t register_from, uint8_t register_to, cpu
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from] ^ cpu_registers->data_register[register_to];
 }
 
-void storeInXValueOfSumBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+void sum(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     uint8_t fromValue = cpu_registers->data_register[register_from];
     uint8_t toValue = cpu_registers->data_register[register_to];
     uint16_t sum = fromValue + toValue;
@@ -305,22 +321,23 @@ void storeInXValueOfSumBetweenXYStoringCarry(uint8_t register_from, uint8_t regi
     cpu_registers->data_register[0xF] = (sum > 0xFF) ? 1 : 0;
 }
 
-void storeInXValueOfSubstractBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
-    uint8_t fromValue = cpu_registers->data_register[register_from];
-    uint8_t toValue = cpu_registers->data_register[register_to];
-    uint16_t substract = toValue - fromValue;
-    cpu_registers->data_register[register_to] = substract & 0xFF;
-    cpu_registers->data_register[0xF] = (toValue < fromValue) ? 1 : 0;
+void substract(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
+    uint8_t VX = cpu->data_register[X];
+    uint8_t VY = cpu->data_register[Y];
+    uint8_t substract = VX - VY;
+    cpu->data_register[X] = substract & 0xFF;
+    cpu->data_register[0xF] = (VY < VX) ? 1 : 0;
 }
 
-void storeInXValueOfRightShiftBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to_write, cpu_registers_t* cpu_registers) {
-    uint8_t fromValue = cpu_registers->data_register[register_from];
-    uint8_t leastSignificantBit = fromValue & 0x01;
-    cpu_registers->data_register[register_to_write] = fromValue >> 1;
-    cpu_registers->data_register[0xF] = leastSignificantBit;
+void shr(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
+
+    uint8_t value = cpu->data_register[Y];
+    cpu->data_register[0xF] = value & 0x01;
+    cpu->data_register[X] = value >> 1;
+
 }
 
-void storeInXValueOfSubstractVXFromVYStoringCarry(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+void substractInverse(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     uint8_t fromValue = cpu_registers->data_register[register_from];
     uint8_t toValue = cpu_registers->data_register[register_to];
     uint16_t substract = fromValue - toValue;
@@ -328,11 +345,10 @@ void storeInXValueOfSubstractVXFromVYStoringCarry(uint8_t register_from, uint8_t
     cpu_registers->data_register[0xF] = (toValue > fromValue) ? 1 : 0;
 }
 
-void storeInXValueOfLeftShiftBetweenXYStoringCarry(uint8_t register_from, uint8_t register_to_write, cpu_registers_t* cpu_registers) {
-    uint8_t fromValue = cpu_registers->data_register[register_from];
-    uint8_t mostSignificantBit = fromValue & 0b10000000;
-    cpu_registers->data_register[register_to_write] = fromValue << 1;
-    cpu_registers->data_register[0xF] = mostSignificantBit;
+void shl(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
+    uint8_t value = cpu->data_register[Y];
+    cpu->data_register[0xF] = (value & 0x80) >> 7;
+    cpu->data_register[X] = value << 1;
 }
 
 void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers) {
@@ -351,4 +367,14 @@ void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers) {
 
 uint8_t randomBetween(int min, int max) {
    return rand() % (max - min + 1) + min;
+}
+
+uint8_t isThereNotAnyKeyPress(uint8_t X, cpu_registers_t* cpu_registers) {
+    for(int i = 0; i < 16; i++) {
+        if (cpu_registers->keypad[i]) {
+            cpu_registers->data_register[X] = cpu_registers->keypad[i];
+            return 0;
+        }
+    }
+    return 1;
 }

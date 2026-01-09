@@ -346,8 +346,8 @@ void substractInverse(uint8_t Y, uint8_t X, cpu_registers_t* cpu_registers) {
 
 void shl(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
     uint8_t value = cpu->data_register[Y];
-    cpu->data_register[0xF] = (value & 0x80) >> 7;
     cpu->data_register[X] = value << 1;
+    cpu->data_register[0xF] = (value & 0x80) >> 7;
 }
 
 void storeBinaryCodedDecimal(uint8_t X, cpu_registers_t* cpu_registers) {

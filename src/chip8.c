@@ -54,14 +54,213 @@ uint16_t fetchInstruction(cpu_registers_t* cpu) {
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
 
     cpu_registers->pc += 2;
+    uint8_t X = (opcode & 0x0F00) >> 8;
+    uint8_t VX = cpu_registers->data_register[X];
+    uint8_t NN = opcode & 0x00FF;
+    uint16_t NNN = opcode & 0x0FFF;
+    uint8_t Y = (opcode & 0x00F0) >> 4;
+    uint8_t VY = cpu_registers->data_register[Y];
 
-    if ((opcode & 0xFFFF) == 0x00E0) {
-        
-        /*for(int i = 0; i < CHIP8_SCREEN_HEIGHT; i++) {
-            for(int j = 0; j < CHIP8_SCREEN_WIDTH; j++) {
-                cpu_registers->display[i][j] = 255;
+    switch((opcode & 0xF000) >> 12) {
+        case 0x0:
+            if ((opcode & 0xFFFF) == 0x00E0) {
+                memset(cpu_registers->display, 0, CHIP8_SCREEN_WIDTH * CHIP8_SCREEN_HEIGHT * sizeof(uint8_t));
+            } 
+            else if ((opcode & 0xFFFF) == 0x00EE) {
+                cpu_registers->pc = cpu_registers->stack[--cpu_registers->sp];
             }
-        }*/
+            else if ((opcode & 0xF000) == 0x0000) {
+                //Its not neccesary to implement
+            }
+            break;
+        case 0x1:
+            cpu_registers->pc = opcode & 0x0FFF;
+            break;
+        case 0x2:
+            cpu_registers->stack[cpu_registers->sp++] = cpu_registers->pc;
+            cpu_registers->pc = opcode & 0x0FFF;
+            break;
+        case 0x3:
+    
+            if (VX == NN) {
+                cpu_registers->pc += 2;
+            }
+            break;
+        case 0x4:
+            //Skip the following instruction if the value of register VX equals NN
+
+            if (VX != NN) {
+                cpu_registers->pc += 2;
+            }
+            break;
+        case 0x5:
+            //Skip the following instruction if the value of register VX is equal to the value of register VY 
+            
+            if (VX == VY) {
+                cpu_registers->pc += 2;
+            }
+            break;
+        case 0x6:
+            setValueRegister(X, NN, cpu_registers);
+            break;
+        case 0x7:
+            addValueToRegister(X, NN, cpu_registers);
+            break;
+        case 0x8:
+            if ((opcode & 0xF00F) == 0x8000) {
+                moveValueFromXToY(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8001) {
+                storeInXValueOfOrBetweenXY(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8002) {
+                storeInXValueOfANDBetweenXY(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8003) {
+                
+                storeInXValueOfXORBetweenXY(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8004) {
+                sum(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8005) {
+                substract(X, Y, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8006) {
+                shr(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x8007) {
+                substractInverse(Y, X, cpu_registers);
+            }
+            else if ((opcode & 0xF00F) == 0x800E) {
+                shl(Y, X, cpu_registers);
+            }
+            break;
+        case 0x9:
+            if (VX != VY) {
+                cpu_registers->pc += 2;
+            }
+                break;
+        case 0xA:
+            //Store memory address NNN in register I
+            cpu_registers->address_register = NNN;
+            break;
+        case 0xB:
+            //Jump to address NNN + V0
+            cpu_registers->pc = NNN + cpu_registers->data_register[0];
+            break;
+        case 0xC:
+            //Set VX to a random number with a mask of NN
+            uint8_t randomValue = randomBetween(0, 0xFF);
+            cpu_registers->data_register[X] = NN & randomValue;
+            break;
+        case 0xD:
+            /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.
+           Set VF to 1 if any set pixels are changed to unset (collision), otherwise 0. */
+            cpu_registers->data_register[0xF] = 0;
+            uint16_t I = cpu_registers->address_register;
+            uint8_t N = opcode & 0x000F;
+            for (int row = 0; row < N; row++) {
+                uint8_t spriteByte = cpu_registers->memory[I + row];
+                for (int bit = 0; bit < 8; bit++) {
+                    uint8_t spritePixel = ((spriteByte >> (7 - bit)) & 0x1) ? 0xFF : 0x00;
+
+                    if (!spritePixel) continue;
+                    uint16_t x = (VX + bit) % CHIP8_SCREEN_WIDTH;
+                    uint16_t y = (VY + row) % CHIP8_SCREEN_HEIGHT;
+                    uint8_t *screenPixel = &cpu_registers->display[y][x];
+                    if (*screenPixel != 0 && spritePixel != 0) {
+                        cpu_registers->data_register[0xF] = 1;
+                    }
+                    if (spritePixel) { printf("Drawing bit at X:%d Y:%d - SpriteBit:%d OldPixel:%d NewPixel:%d\n", x, y, spritePixel, *screenPixel, (*screenPixel) ^ spritePixel); }
+
+                    *screenPixel = (*screenPixel) ^ spritePixel;
+                }
+            }
+            break;
+        case 0xE:
+            if ((opcode & 0xF0FF) == 0xE09E) {
+                /*
+                Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed
+                */
+
+               uint8_t X = (opcode & 0x0F00) >> 8;
+               uint8_t key = cpu_registers->data_register[X];
+               if (key < 16 && cpu_registers->keypad[key]) {
+                    cpu_registers->pc += 2;
+               }
+            }
+            else if ((opcode & 0xF0FF) == 0xE0A1) {
+                //Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed
+                uint8_t X = (opcode & 0x0F00) >> 8;
+               uint8_t key = cpu_registers->data_register[X];
+               if (!cpu_registers->keypad[key]) {
+                    cpu_registers->pc += 2;
+               }
+            }
+            break;
+        case 0xF:
+            if ((opcode & 0xF0FF) == 0xF007) {
+                //Store the current value of the delay timer in register VX
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                cpu_registers->data_register[X] = cpu_registers->delay_timer;
+            }
+            else if ((opcode & 0xF0FF) == 0xF00A) {
+                //Do something
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                if (isThereNotAnyKeyPress(X, cpu_registers)) {
+                    cpu_registers->pc = cpu_registers->pc - 2;
+                }
+            }
+            else if ((opcode & 0xF0FF) == 0xF015) {
+                //Set the delay timer to the value of register VX
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                cpu_registers->delay_timer = cpu_registers->data_register[X];
+            }
+            else if ((opcode & 0xF0FF) == 0xF018) {
+                //Set the sound timer to the value of register VX
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                cpu_registers->sound_timer = cpu_registers->data_register[X];
+            }
+            else if ((opcode & 0xF0FF) == 0xF01E) {
+                //Add the value stored in register VX to register I
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                uint8_t Vx = cpu_registers->data_register[X];
+                cpu_registers->address_register += Vx;
+            }
+            else if ((opcode & 0xF0FF) == 0xF029) {
+                //Do something
+                uint8_t Vx = (opcode & 0x0F00) >> 8;
+                uint8_t digit = cpu_registers->data_register[Vx];
+                cpu_registers->address_register = FONTSET_START_ADDRESS + 5 * digit;
+            }
+            else if ((opcode & 0xF0FF) == 0xF033) {
+                //Store the binary-coded decimal equivalent of the value stored in register VX at addresses I, I + 1, and I + 2
+                uint8_t x = (opcode & 0x0F00) >> 8;
+                storeBinaryCodedDecimal(x, cpu_registers);
+            }
+            else if ((opcode & 0xF0FF) == 0xF055) {
+                //Store the values of registers V0 to VX inclusive in memory starting at address I. I is set to I + X + 1 after operation
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                for(int i = 0; i <= X; i++) {
+                    cpu_registers->memory[cpu_registers->address_register] = cpu_registers->data_register[i];
+                    cpu_registers->address_register++;
+                }
+            }
+            else if ((opcode & 0xF0FF) == 0xF065) {
+                //Fill registers V0 to VX inclusive with the values stored in memory starting at address I. I is set to I + X + 1 after operation
+                uint8_t X = (opcode & 0x0F00) >> 8;
+                for(int i = 0; i <= X; i++) {
+                    cpu_registers->data_register[i] = cpu_registers->memory[cpu_registers->address_register];
+                    cpu_registers->address_register++;
+                }
+            }
+            break;
+    }
+
+    /*
+    if ((opcode & 0xFFFF) == 0x00E0) {
+
         memset(cpu_registers->display, 0, CHIP8_SCREEN_WIDTH * CHIP8_SCREEN_HEIGHT * sizeof(uint8_t));
     } 
     else if ((opcode & 0xFFFF) == 0x00EE) {
@@ -172,7 +371,6 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     else if ((opcode & 0xF000) == 0xA000) {
         //Store memory address NNN in register I
         uint16_t NNN = opcode & 0x0FFF;
-        //uint16_t value = cpu_registers->memory[NNN];
         cpu_registers->address_register = NNN;
     }
     else if ((opcode & 0xF000) == 0xB000) {
@@ -187,8 +385,6 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         cpu_registers->data_register[X] = NN & randomValue;
     }
     else if ((opcode & 0xF000) == 0xD000) {
-        /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.
-           Set VF to 1 if any set pixels are changed to unset (collision), otherwise 0. */
         cpu_registers->data_register[0xF] = 0;
         uint16_t I = cpu_registers->address_register;
         uint8_t N = opcode & 0x000F;
@@ -214,9 +410,6 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
         }
     }
     else if ((opcode & 0xF0FF) == 0xE09E) {
-        /*
-        Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed
-        */
        
        uint8_t X = (opcode & 0x0F00) >> 8;
        uint8_t key = cpu_registers->data_register[X];
@@ -287,6 +480,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
             cpu_registers->address_register++;
         }
     }
+    */
 }
 
 void setValueRegister(uint8_t cpu_register, uint8_t valueToStore, cpu_registers_t* cpu_registers) {

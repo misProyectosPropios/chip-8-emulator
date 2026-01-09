@@ -30,8 +30,11 @@ git_test:
 compile:
 	gcc $(CFLAGS) $(SRC) ./src/$(EXECUTABLE).c -o ./src/$(EXECUTABLE) `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf
 
-run:
+run: compile
 	SDL_VIDEODRIVER=x11 ./src/$(EXECUTABLE)
+
+test_main:
+	gdb ./src/$(EXECUTABLE)
 
 clean:
 	rm -f $(TARGET) $(TEST_TARGET)

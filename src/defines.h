@@ -23,13 +23,21 @@ struct Game {
 
 // Functions
 static void renderChip8Screen(struct Game *game, cpu_registers_t *cpu);
+void handleInput(cpu_registers_t* cpu, struct Game game);
+
 bool sdl_initialize(struct Game *game);
+
 void cleanAll(cpu_registers_t* cpu, struct Game *game, int exit_status);
+void game_cleanup(struct Game *game, int exit_status);
 void print_rom_hex(uint8_t *rom, size_t size);
-void storeKeydown(cpu_registers_t *cpu, uint8_t numberKey );
-void storeKeyup(cpu_registers_t *cpu, uint8_t numberKey );
+
+//Input program
+uint8_t *load_rom(const char *path, size_t *out_size);
+
+//Logs 
+void logFile(FILE *log_file, uint16_t opcode, cpu_registers_t *cpu);
 void log_keypad(FILE *log_file, cpu_registers_t *cpu);
 void log_timers(FILE *log_file, cpu_registers_t *cpu);
-void game_cleanup(struct Game *game, int exit_status);
-bool sdl_initialize(struct Game *game);
-uint8_t *load_rom(const char *path, size_t *out_size);
+
+
+

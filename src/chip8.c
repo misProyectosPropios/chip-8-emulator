@@ -336,12 +336,12 @@ void shr(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
     cpu->data_register[0xF] = value & 0x01;
 }
 
-void substractInverse(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
-    uint8_t fromValue = cpu_registers->data_register[register_from];
-    uint8_t toValue = cpu_registers->data_register[register_to];
-    uint16_t substract = fromValue - toValue;
-    cpu_registers->data_register[register_to] = substract & 0xFF;
-    cpu_registers->data_register[0xF] = (toValue > fromValue) ? 1 : 0;
+void substractInverse(uint8_t Y, uint8_t X, cpu_registers_t* cpu_registers) {
+    uint8_t VY = cpu_registers->data_register[Y];
+    uint8_t VX = cpu_registers->data_register[X];
+    uint8_t substract = VY - VX;
+    cpu_registers->data_register[X] = substract;
+    cpu_registers->data_register[0xF] = (VY >= VX) ? 1 : 0;
 }
 
 void shl(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {

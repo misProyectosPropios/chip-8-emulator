@@ -332,9 +332,8 @@ void substract(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
 void shr(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
 
     uint8_t value = cpu->data_register[Y];
-    cpu->data_register[0xF] = value & 0x01;
     cpu->data_register[X] = value >> 1;
-
+    cpu->data_register[0xF] = value & 0x01;
 }
 
 void substractInverse(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {

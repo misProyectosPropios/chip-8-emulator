@@ -1,7 +1,4 @@
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+
 #include "chip8.h"
 
 cpu_registers_t* createChip8() {
@@ -45,11 +42,23 @@ cpu_registers_t* createChip8() {
     return chip8;
 }
 
+void loadProgram(cpu_registers_t *cpu, uint8_t *program, size_t size) {
+    for(size_t i = 0; i < size; i++) {
+        cpu->memory[i + 0x200] = program[i];
+    }
+}
+
+
 uint16_t fetchInstruction(cpu_registers_t* cpu) {
     uint16_t opcode =
     ((uint16_t)cpu->memory[cpu->pc] << 8) |
     (uint16_t)cpu->memory[cpu->pc + 1];
     return opcode;
+}
+
+void decrementTimer(cpu_registers_t* cpu) {
+    cpu->delay_timer = (cpu->delay_timer == 0) ? 0 : cpu->delay_timer - 1;
+    cpu->sound_timer = (cpu->sound_timer == 0) ? 0 : cpu->sound_timer - 1;
 }
 
 void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
@@ -113,14 +122,14 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
                 moveValueFromXToY(Y, X, cpu_registers);
             }
             else if ((opcode & 0xF00F) == 0x8001) {
-                storeInXValueOfOrBetweenXY(Y, X, cpu_registers);
+                or(Y, X, cpu_registers);
             }
             else if ((opcode & 0xF00F) == 0x8002) {
-                storeInXValueOfANDBetweenXY(Y, X, cpu_registers);
+                and(Y, X, cpu_registers);
             }
             else if ((opcode & 0xF00F) == 0x8003) {
                 
-                storeInXValueOfXORBetweenXY(Y, X, cpu_registers);
+                xor(Y, X, cpu_registers);
             }
             else if ((opcode & 0xF00F) == 0x8004) {
                 sum(Y, X, cpu_registers);
@@ -176,8 +185,6 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
                     if (*screenPixel != 0 && spritePixel != 0) {
                         cpu_registers->data_register[0xF] = 1;
                     }
-                    if (spritePixel) { printf("Drawing bit at X:%d Y:%d - SpriteBit:%d OldPixel:%d NewPixel:%d\n", x, y, spritePixel, *screenPixel, (*screenPixel) ^ spritePixel); }
-
                     *screenPixel = (*screenPixel) ^ spritePixel;
                 }
             }
@@ -275,16 +282,19 @@ void moveValueFromXToY(uint8_t register_from, uint8_t register_to, cpu_registers
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from];
 }
 
-void storeInXValueOfOrBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+void or(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from] | cpu_registers->data_register[register_to];
+    cpu_registers->data_register[0xF] = 0;
 }
 
-void storeInXValueOfANDBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+void and(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from] & cpu_registers->data_register[register_to];
+    cpu_registers->data_register[0xF] = 0;
 }
 
-void storeInXValueOfXORBetweenXY(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
+void xor(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
     cpu_registers->data_register[register_to] = cpu_registers->data_register[register_from] ^ cpu_registers->data_register[register_to];
+    cpu_registers->data_register[0xF] = 0;
 }
 
 void sum(uint8_t register_from, uint8_t register_to, cpu_registers_t* cpu_registers) {
@@ -304,8 +314,8 @@ void substract(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
 }
 
 void shr(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
-
-    uint8_t value = cpu->data_register[Y];
+    Y++;
+    uint8_t value = cpu->data_register[X];
     cpu->data_register[X] = value >> 1;
     cpu->data_register[0xF] = value & 0x01;
 }
@@ -319,7 +329,8 @@ void substractInverse(uint8_t Y, uint8_t X, cpu_registers_t* cpu_registers) {
 }
 
 void shl(uint8_t X, uint8_t Y, cpu_registers_t* cpu) {
-    uint8_t value = cpu->data_register[Y];
+    Y++;
+    uint8_t value = cpu->data_register[X];
     cpu->data_register[X] = value << 1;
     cpu->data_register[0xF] = (value & 0x80) >> 7;
 }

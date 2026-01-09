@@ -32,13 +32,6 @@ int main() {
     print_rom_hex(rom, rom_size);
     loadProgram(cpu, rom, rom_size);
     
-/*
-    for(int i = 0; i < 100; i++) {
-        uint16_t opcode = fetchInstruction(cpu);
-        fprintf(log_file, "PC=%03X OPCODE=%04X\n", cpu->pc, opcode);
-        executeInstruction(opcode, cpu);
-    }
-*/
     if (sdl_initialize(&game)) {
         cleanAll(cpu, &game, EXIT_FAILURE);
         return 1;

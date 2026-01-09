@@ -17,6 +17,7 @@ cpu_registers_t* createChip8() {
     chip8->address_register = 0;
     chip8->delay_timer = 0;
     chip8->sound_timer = 0;
+    chip8->screen_modify = 0;
 
     /* Standard CHIP-8 fontset (0-F), each character 5 bytes */
     static const uint8_t chip8_fontset[80] = {
@@ -64,6 +65,7 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
     switch((opcode & 0xF000) >> 12) {
         case 0x0:
             if ((opcode & 0xFFFF) == 0x00E0) {
+                cpu_registers->screen_modify = 1;
                 memset(cpu_registers->display, 0, CHIP8_SCREEN_WIDTH * CHIP8_SCREEN_HEIGHT * sizeof(uint8_t));
             } 
             else if ((opcode & 0xFFFF) == 0x00EE) {
@@ -158,6 +160,8 @@ void executeInstruction(uint16_t opcode, cpu_registers_t* cpu_registers) {
             /* Draw a sprite at position VX, VY with N bytes of sprite data starting at I.
            Set VF to 1 if any set pixels are changed to unset (collision), otherwise 0. */
             cpu_registers->data_register[0xF] = 0;
+            cpu_registers->screen_modify = 1;
+            
             uint16_t I = cpu_registers->address_register;
             uint8_t N = opcode & 0x000F;
             for (int row = 0; row < N; row++) {

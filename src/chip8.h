@@ -16,6 +16,7 @@ typedef struct cpu_registers {
     uint8_t  keypad[16]; // store whether a key was pressed or not
     uint8_t  delay_timer;
     uint8_t  sound_timer;
+    uint8_t screen_modify;
 } cpu_registers_t;
 
 
